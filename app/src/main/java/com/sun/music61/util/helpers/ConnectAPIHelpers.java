@@ -86,8 +86,6 @@ public class ConnectAPIHelpers extends AsyncTask<String, Void, HashMap<String, S
             HttpURLConnection httpURLConnection = (HttpURLConnection) urlParse.openConnection();
             httpURLConnection.setConnectTimeout(CONNECTION_TIMEOUT);
             httpURLConnection.setReadTimeout(READ_TIMEOUT);
-            httpURLConnection.setDoInput(true);
-            httpURLConnection.setDoOutput(true);
             switch (mMethod) {
                 case Method.GET:
                     httpURLConnection.setRequestMethod(Method.GET);
@@ -146,6 +144,9 @@ public class ConnectAPIHelpers extends AsyncTask<String, Void, HashMap<String, S
 
     private StringBuffer configPostMethod(HttpURLConnection httpURLConnection) {
         try {
+            httpURLConnection.setDoInput(true);
+            httpURLConnection.setDoOutput(true);
+
             Uri.Builder builder = new Uri.Builder();
 
             for (int i = 0; i < mAttributes.size(); i++) {
