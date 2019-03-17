@@ -1,9 +1,12 @@
 package com.sun.music61.data.source;
 
-import com.sun.music61.data.model.Track;
-
-import java.util.List;
-
 public interface TracksDataSource {
-    List<Track> getBanners();
+
+    interface RemoteDataSource {
+        void getBanners(RepositoryCallBack callback);
+        void getTracksByGenres(String genres, String offset, RepositoryCallBack callback);
+    }
+
+    interface LocalDataSource {
+    }
 }

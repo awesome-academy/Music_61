@@ -1,4 +1,4 @@
-package com.sun.music61.screen.home;
+package com.sun.music61.screen.home.fragment;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -31,7 +31,6 @@ public class GenresFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        // Fetch Arguments
         mGenres = Objects.requireNonNull(getArguments()).getString(ARGUMENT_GENRES);
         View root = inflater.inflate(R.layout.genres_fragment, container, false);
         TextView textGenres = root.findViewById(R.id.textGenres);
