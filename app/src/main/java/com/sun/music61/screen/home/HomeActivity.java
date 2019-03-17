@@ -1,4 +1,4 @@
-package com.sun.music61.home;
+package com.sun.music61.screen.home;
 
 import android.content.Context;
 import android.content.Intent;
@@ -12,8 +12,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import com.sun.music61.R;
-import com.sun.music61.data.adapter.CustomSliderAdapter;
-import com.sun.music61.data.adapter.HomePagerAdapter;
+import com.sun.music61.screen.home.adapter.CustomSliderAdapter;
+import com.sun.music61.screen.home.adapter.HomePagerAdapter;
 import com.sun.music61.data.model.Track;
 import com.sun.music61.util.RepositoryInstance;
 import com.sun.music61.util.helpers.ImageLoadingServiceHelpers;
