@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:id="@+id/actionHome"
+        android:icon="@drawable/ic_home_white_24dp"
+        android:title="@string/title_home"/>
+    <item
         android:id="@+id/actionMySong"
         android:icon="@drawable/ic_my_song_white_24dp"
         android:title="@string/title_my_library"/>

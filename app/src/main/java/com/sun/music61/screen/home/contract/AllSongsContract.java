@@ -8,11 +8,14 @@ import java.util.List;
 public interface AllSongsContract {
 
     interface View extends BaseView<Presenter> {
+        void onGetBannersSuccess(List<Track> banners);
+        void onDataBannersNotAvailable();
         void onGetTracksSuccess(String genres, List<Track> tracks);
         void onDataTracksNotAvailable(String genres);
     }
 
     interface Presenter extends BasePresenter {
+        void loadAllBanners();
         void loadAllTracks(String genres, String offset);
     }
 }

@@ -1,5 +1,6 @@
 package com.sun.music61.screen.home.fragment;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -12,13 +13,17 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 import com.sun.music61.R;
 import com.sun.music61.data.model.Track;
+import com.sun.music61.screen.home.adapter.CustomSliderAdapter;
 import com.sun.music61.screen.home.adapter.TrackAdapter;
 import com.sun.music61.screen.home.contract.AllSongsContract;
 import com.sun.music61.screen.home.presenter.AllSongPresenter;
 import com.sun.music61.util.RepositoryInstance;
+import com.sun.music61.util.helpers.ImageLoadingServiceHelpers;
 import com.sun.music61.util.listener.ItemRecyclerOnClickListener;
+import dmax.dialog.SpotsDialog;
 import java.util.List;
 import java.util.Objects;
+import ss.com.bannerslider.Slider;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.sun.music61.util.CommonUtils.Genres;
@@ -29,6 +34,8 @@ public class AllSongsFragment extends Fragment implements AllSongsContract.View,
     private static final String OFFSET_DEFAULT = "0";
 
     private AllSongsContract.Presenter mPresenter;
+    private AlertDialog mDialogWaiting;
+    private Slider mSlider;
     private SwipeRefreshLayout mRefreshLayout;
     private RecyclerView mRecyclerMusics;
     private TrackAdapter mMusicAdapter;
@@ -56,6 +63,13 @@ public class AllSongsFragment extends Fragment implements AllSongsContract.View,
     }
 
     private void initView(View rootView) {
+        mDialogWaiting = new SpotsDialog.Builder()
+                .setContext(getContext())
+                .setMessage(R.string.text_waiting)
+                .setCancelable(false)
+                .build();
+        mSlider = rootView.findViewById(R.id.slider);
+        Slider.init(new ImageLoadingServiceHelpers());
         mRecyclerMusics = rootView.findViewById(R.id.recyclerMusic);
         mRecyclerAudios = rootView.findViewById(R.id.recyclerAudio);
         mMusicAdapter = new TrackAdapter(R.layout.item_track_square);
@@ -86,6 +100,8 @@ public class AllSongsFragment extends Fragment implements AllSongsContract.View,
     }
 
     private void loadData() {
+        mDialogWaiting.show();
+        mPresenter.loadAllBanners();
         mPresenter.loadAllTracks(Genres.ALL_MUSIC, OFFSET_DEFAULT);
         mPresenter.loadAllTracks(Genres.ALL_AUDIO, OFFSET_DEFAULT);
     }
@@ -93,6 +109,17 @@ public class AllSongsFragment extends Fragment implements AllSongsContract.View,
     @Override
     public void setPresenter(AllSongsContract.Presenter presenter) {
         mPresenter = checkNotNull(presenter);
+    }
+
+    @Override
+    public void onGetBannersSuccess(List<Track> banners) {
+        mSlider.setVisibility(View.VISIBLE);
+        mSlider.setAdapter(new CustomSliderAdapter(banners));
+    }
+
+    @Override
+    public void onDataBannersNotAvailable() {
+        mSlider.setVisibility(View.GONE);
     }
 
     @Override
@@ -107,6 +134,7 @@ public class AllSongsFragment extends Fragment implements AllSongsContract.View,
                 mAudioAdapter.updateData(tracks);
                 break;
         }
+        mDialogWaiting.dismiss();
     }
 
     @Override
@@ -119,6 +147,7 @@ public class AllSongsFragment extends Fragment implements AllSongsContract.View,
                 mRecyclerAudios.setVisibility(View.GONE);
                 break;
         }
+        mDialogWaiting.dismiss();
     }
 
     @Override
