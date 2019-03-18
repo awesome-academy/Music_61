@@ -16,6 +16,6 @@ public interface AllSongsContract {
 
     interface Presenter extends BasePresenter {
         void loadAllBanners();
-        void loadAllTracks(String genres, String offset);
+        void loadAllTracks(String genres, int offset);
     }
 }

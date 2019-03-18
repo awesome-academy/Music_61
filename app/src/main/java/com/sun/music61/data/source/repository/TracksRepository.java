@@ -39,7 +39,7 @@ public class TracksRepository implements TracksDataSource.RemoteDataSource,
     }
 
     @Override
-    public void getTracksByGenres(String genres, String offset, RepositoryCallBack callback) {
+    public void getTracksByGenres(String genres, int offset, RepositoryCallBack callback) {
         mTracksRemoteDataSource.getTracksByGenres(genres, offset, callback);
     }
 }

@@ -9,25 +9,17 @@ import com.sun.music61.util.CommonUtils;
 import com.sun.music61.util.helpers.APIFactory;
 import com.sun.music61.util.listener.APICallback;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.ExecutionException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import static com.sun.music61.util.CommonUtils.Constants;
 import static com.sun.music61.util.StatusCodeUtils.OK;
 
 public class TracksRemoteDataSource implements TracksDataSource.RemoteDataSource {
 
     private static final String TAG = TracksRemoteDataSource.class.getName();
-    private static final String TAG_SONG = "songs";
-    private static final String ORDER = "created_at";
-    private static final int LIMIT_BANNER = 5;
-    private static final int LIMIT_DEFAULT = 10;
-    private static final int OFF_SET_NUMBER_DEFAULT = 1;
 
     private static TracksRemoteDataSource sInstance;
 
@@ -45,9 +37,9 @@ public class TracksRemoteDataSource implements TracksDataSource.RemoteDataSource
     public void getBanners(RepositoryCallBack callback) {
         APIFactory.Builder()
                 .baseUrl(CommonUtils.API_TRACKS
-                        + CommonUtils.KeyParams.TAGS + TAG_SONG + "&"
-                        + CommonUtils.KeyParams.LIMIT + LIMIT_BANNER + "&"
-                        + CommonUtils.KeyParams.OFFSET + OFF_SET_NUMBER_DEFAULT)
+                        + CommonUtils.KeyParams.TAGS + Constants.TAG_SONG + "&"
+                        + CommonUtils.KeyParams.LIMIT + Constants.LIMIT_BANNER + "&"
+                        + CommonUtils.KeyParams.OFFSET + Constants.DEFAULT_OFFSET)
                 .method(APIFactory.Method.GET)
                 .enqueue(new APICallback() {
                     @Override
@@ -64,12 +56,12 @@ public class TracksRemoteDataSource implements TracksDataSource.RemoteDataSource
     }
 
     @Override
-    public void getTracksByGenres(String genres, String offset, RepositoryCallBack callback) {
+    public void getTracksByGenres(String genres, int offset, RepositoryCallBack callback) {
         APIFactory.Builder()
                 .baseUrl(CommonUtils.API_TRACKS
                         + CommonUtils.KeyParams.GENRES + genres + "&"
-                        + CommonUtils.KeyParams.ORDER + ORDER + "&"
-                        + CommonUtils.KeyParams.LIMIT + LIMIT_DEFAULT + "&"
+                        + CommonUtils.KeyParams.ORDER + Constants.ORDER + "&"
+                        + CommonUtils.KeyParams.LIMIT + Constants.LIMIT_DEFAULT + "&"
                         + CommonUtils.KeyParams.OFFSET + offset)
                 .method(APIFactory.Method.GET)
                 .enqueue(new APICallback() {

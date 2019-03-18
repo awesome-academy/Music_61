@@ -15,8 +15,10 @@ import com.sun.music61.R;
 import com.sun.music61.data.model.Track;
 import com.sun.music61.screen.home.adapter.CustomSliderAdapter;
 import com.sun.music61.screen.home.adapter.TrackAdapter;
+import com.sun.music61.util.CommonUtils;
 import com.sun.music61.util.RepositoryInstance;
 import com.sun.music61.util.helpers.ImageLoadingServiceHelpers;
+import com.sun.music61.util.helpers.OnScrollPagination;
 import com.sun.music61.util.listener.ItemRecyclerOnClickListener;
 import dmax.dialog.SpotsDialog;
 import java.util.List;
@@ -29,14 +31,15 @@ import static com.sun.music61.util.CommonUtils.Genres;
 public class AllSongsFragment extends Fragment implements AllSongsContract.View,
         ItemRecyclerOnClickListener {
 
-    private static final String OFFSET_DEFAULT = "0";
+    private static final int ZERO = 0;
 
     private AllSongsContract.Presenter mPresenter;
     private AlertDialog mDialogWaiting;
     private Slider mSlider;
     private SwipeRefreshLayout mRefreshLayout;
-    private RecyclerView mRecyclerMusics;
-    private TrackAdapter mMusicAdapter;
+    private RecyclerView mRecycler;
+    private TrackAdapter mAdapter;
+    private int mOffset;
 
     public static AllSongsFragment newInstance() {
         return new AllSongsFragment();
@@ -62,12 +65,12 @@ public class AllSongsFragment extends Fragment implements AllSongsContract.View,
                 .build();
         mSlider = rootView.findViewById(R.id.slider);
         Slider.init(new ImageLoadingServiceHelpers());
-        mRecyclerMusics = rootView.findViewById(R.id.recyclerMusic);
-        mMusicAdapter = new TrackAdapter(R.layout.item_track_square);
-        mMusicAdapter.setOnItemClickListener(this);
-        mRecyclerMusics.setLayoutManager(
+        mRecycler = rootView.findViewById(R.id.recyclerMusic);
+        mAdapter = new TrackAdapter(R.layout.item_track_square);
+        mAdapter.setOnItemClickListener(this);
+        mRecycler.setLayoutManager(
                 new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
-        mRecyclerMusics.setAdapter(mMusicAdapter);
+        mRecycler.setAdapter(mAdapter);
         mRefreshLayout = rootView.findViewById(R.id.swipeLayout);
         mRefreshLayout.setColorSchemeResources(
                 R.color.colorPrimary,
@@ -79,16 +82,24 @@ public class AllSongsFragment extends Fragment implements AllSongsContract.View,
 
     private void onListenerEvent() {
         mRefreshLayout.post(this::loadData);
-        mRefreshLayout.setOnRefreshListener(() -> {
-            loadData();
-            mRefreshLayout.setRefreshing(false);
+        mRefreshLayout.setOnRefreshListener(this::loadData);
+        mSlider.setOnSlideClickListener(position -> {
+            // Code late
+        });
+        mRecycler.addOnScrollListener(new OnScrollPagination() {
+            @Override
+            protected void loadMoreItems() {
+                mOffset += CommonUtils.Constants.LIMIT_DEFAULT;
+                mPresenter.loadAllTracks(CommonUtils.Genres.ALL_MUSIC, mOffset);
+            }
         });
     }
 
     private void loadData() {
         mDialogWaiting.show();
+        mOffset = ZERO;
         mPresenter.loadAllBanners();
-        mPresenter.loadAllTracks(Genres.ALL_MUSIC, OFFSET_DEFAULT);
+        mPresenter.loadAllTracks(Genres.ALL_MUSIC, CommonUtils.Constants.DEFAULT_OFFSET);
     }
 
     @Override
@@ -109,14 +120,19 @@ public class AllSongsFragment extends Fragment implements AllSongsContract.View,
 
     @Override
     public void onGetTracksSuccess(List<Track> tracks) {
-        mRecyclerMusics.setVisibility(View.VISIBLE);
-        mMusicAdapter.updateData(tracks);
-        mDialogWaiting.dismiss();
+        if (mOffset == ZERO) {
+            mAdapter.updateData(tracks);
+            mRefreshLayout.setRefreshing(false);
+        } else {
+            mAdapter.loadMoreData(tracks);
+        }
+        if (mDialogWaiting.isShowing() && mDialogWaiting != null)
+            mDialogWaiting.dismiss();
     }
 
     @Override
     public void onDataTracksNotAvailable() {
-        mRecyclerMusics.setVisibility(View.GONE);
+        mRecycler.setVisibility(View.GONE);
         mDialogWaiting.dismiss();
     }
 

@@ -77,6 +77,7 @@ public final class Track implements Parcelable {
         mDescription = in.readString();
         mOriginalFormat = in.readString();
         mOriginalContentSize = in.readLong();
+        mUser = Objects.requireNonNull(in.readParcelable(getClass().getClassLoader()));
         mArtworkUrl = in.readString();
         mStreamUrl = in.readString();
         mDownloadUrl = in.readString();
@@ -98,6 +99,7 @@ public final class Track implements Parcelable {
         parcel.writeString(mDescription);
         parcel.writeString(mOriginalFormat);
         parcel.writeLong(mOriginalContentSize);
+        parcel.writeParcelable(mUser, i);
         parcel.writeString(mArtworkUrl);
         parcel.writeString(mStreamUrl);
         parcel.writeString(mDownloadUrl);

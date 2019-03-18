@@ -4,7 +4,7 @@ public interface TracksDataSource {
 
     interface RemoteDataSource {
         void getBanners(RepositoryCallBack callback);
-        void getTracksByGenres(String genres, String offset, RepositoryCallBack callback);
+        void getTracksByGenres(String genres, int offset, RepositoryCallBack callback);
     }
 
     interface LocalDataSource {
