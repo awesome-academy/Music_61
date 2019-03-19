@@ -1,7 +1,12 @@
-package com.sun.music61.data.source;
+package com.sun.music61.data.source.repository;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+
+import com.sun.music61.data.model.Track;
+import com.sun.music61.data.source.TracksDataSource;
+
+import java.util.List;
 
 public class TracksRepository implements TracksDataSource {
 
@@ -26,4 +31,9 @@ public class TracksRepository implements TracksDataSource {
     }
 
     public static void destroyInstance() { sInstance = null; }
+
+    @Override
+    public List<Track> getBanners() {
+        return mTracksRemoteDataSource.getBanners();
+    }
 }

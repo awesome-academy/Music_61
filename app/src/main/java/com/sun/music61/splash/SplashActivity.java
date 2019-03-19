@@ -6,12 +6,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.WindowManager;
 
 import com.sun.music61.R;
+import com.sun.music61.home.HomeActivity;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class SplashActivity extends AppCompatActivity {
 
-    private static final int TIME_SLEEP = 3000;
+    private static final int TIME_SLEEP = 500;
 
     @Override
     protected void attachBaseContext(Context newBase) {
@@ -33,7 +34,8 @@ public class SplashActivity extends AppCompatActivity {
             } catch (Exception ignored) {
 
             } finally {
-                // Code late
+                startActivity(HomeActivity.newInstance(getApplicationContext()));
+                finish();
             }
         }).start();
     }

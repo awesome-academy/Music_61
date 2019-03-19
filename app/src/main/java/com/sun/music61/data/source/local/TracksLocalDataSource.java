@@ -30,4 +30,11 @@ public class TracksLocalDataSource implements TracksDataSource {
     public static void destroyInstance() {
         sInstance = null;
     }
+
+    @Override
+    public List<Track> getBanners() {
+        // Not required
+        // banners get from server.
+        return null;
+    }
 }

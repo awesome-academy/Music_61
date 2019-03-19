@@ -1,6 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
+    defaultConfig {
+        buildConfigField "String", "API_KEY", "\"${API_KEY}\""
+    }
+}
+
+android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     defaultConfig {
         applicationId "com.sun.music61"
