@@ -5,4 +5,7 @@
     <string name="title_my_library">Library</string>
     <string name="title_setting">Setting</string>
     <string name="title_favorite">Favorite</string>
+    <string name="title_search">Search</string>
+    <string name="title_home">Home</string>
+    <string name="sub_title_home">playing online music</string>
 </resources>
