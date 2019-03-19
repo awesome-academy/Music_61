@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">Sun*</string>
     <string name="slogan"><b>Make awesome things</b>\nthat matter.</string>
+    <!--Menu title-->
+    <string name="title_my_library">Library</string>
+    <string name="title_setting">Setting</string>
+    <string name="title_favorite">Favorite</string>
 </resources>
