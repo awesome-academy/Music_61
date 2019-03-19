@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -12,17 +13,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import com.sun.music61.R;
 import com.sun.music61.data.model.Track;
+import com.sun.music61.screen.MainActivity;
 import com.sun.music61.screen.home.adapter.TrackAdapter;
+import com.sun.music61.screen.play.PlayFragment;
 import com.sun.music61.util.CommonUtils;
 import com.sun.music61.util.RepositoryInstance;
 import com.sun.music61.util.helpers.OnScrollPagination;
+import com.sun.music61.util.listener.ItemRecyclerOnClickListener;
 import dmax.dialog.SpotsDialog;
 import java.util.List;
 import java.util.Objects;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class GenresFragment extends Fragment implements GenresContract.View {
+public class GenresFragment extends Fragment implements GenresContract.View,
+        ItemRecyclerOnClickListener {
 
     private static final String ARGUMENT_GENRES = "ARGUMENT_GENRES";
     private static final int ZERO = 0;
@@ -63,6 +68,7 @@ public class GenresFragment extends Fragment implements GenresContract.View {
         mRecyclerGenres = rootView.findViewById(R.id.recyclerGenres);
         mRecyclerGenres.setHasFixedSize(true);
         mAdapter = new TrackAdapter(R.layout.item_track_list);
+        mAdapter.setOnItemClickListener(this);
         mRecyclerGenres.setAdapter(mAdapter);
         mSwipeLayout = rootView.findViewById(R.id.swipeLayout);
         mSwipeLayout.setColorSchemeResources(R.color.colorPrimary, android.R.color.holo_green_dark,
@@ -115,5 +121,11 @@ public class GenresFragment extends Fragment implements GenresContract.View {
 
     @Override
     public void showErrors(String message) {
+    }
+
+    @Override
+    public void onRecyclerItemClick(Object object, int position) {
+        MainActivity.replaceFragment((AppCompatActivity) Objects.requireNonNull(getActivity()),
+                PlayFragment.newInstance((Track) object));
     }
 }
