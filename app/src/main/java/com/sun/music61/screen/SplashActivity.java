@@ -1,4 +1,4 @@
-package com.sun.music61.screen.splash;
+package com.sun.music61.screen;
 
 import android.content.Context;
 import android.os.Bundle;
