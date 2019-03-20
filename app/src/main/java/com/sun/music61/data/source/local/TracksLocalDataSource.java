@@ -4,10 +4,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-
 import com.google.common.base.Function;
 import com.sun.music61.data.model.Track;
 import com.sun.music61.data.source.TracksDataSource;
+import java.util.List;
 
 public class TracksLocalDataSource implements TracksDataSource {
 

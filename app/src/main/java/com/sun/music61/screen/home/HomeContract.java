@@ -1,4 +1,4 @@
-package com.sun.music61.home;
+package com.sun.music61.screen.home;
 
 import com.sun.music61.BasePresenter;
 import com.sun.music61.BaseView;

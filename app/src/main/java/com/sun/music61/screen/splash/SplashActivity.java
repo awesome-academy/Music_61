@@ -1,4 +1,4 @@
-package com.sun.music61.splash;
+package com.sun.music61.screen.splash;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -6,7 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.WindowManager;
 
 import com.sun.music61.R;
-import com.sun.music61.home.HomeActivity;
+import com.sun.music61.screen.home.HomeActivity;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 

@@ -1,4 +1,4 @@
-package com.sun.music61.home;
+package com.sun.music61.screen.home;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
