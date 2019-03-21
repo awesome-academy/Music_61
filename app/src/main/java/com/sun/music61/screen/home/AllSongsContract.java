@@ -1,4 +1,4 @@
-package com.sun.music61.screen.home.contract;
+package com.sun.music61.screen.home;
 
 import com.sun.music61.BasePresenter;
 import com.sun.music61.BaseView;
@@ -10,8 +10,8 @@ public interface AllSongsContract {
     interface View extends BaseView<Presenter> {
         void onGetBannersSuccess(List<Track> banners);
         void onDataBannersNotAvailable();
-        void onGetTracksSuccess(String genres, List<Track> tracks);
-        void onDataTracksNotAvailable(String genres);
+        void onGetTracksSuccess(List<Track> tracks);
+        void onDataTracksNotAvailable();
     }
 
     interface Presenter extends BasePresenter {

@@ -1,4 +1,4 @@
-package com.sun.music61.screen.home.fragment;
+package com.sun.music61.screen.home;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
@@ -15,8 +15,6 @@ import com.sun.music61.R;
 import com.sun.music61.data.model.Track;
 import com.sun.music61.screen.home.adapter.CustomSliderAdapter;
 import com.sun.music61.screen.home.adapter.TrackAdapter;
-import com.sun.music61.screen.home.contract.AllSongsContract;
-import com.sun.music61.screen.home.presenter.AllSongPresenter;
 import com.sun.music61.util.RepositoryInstance;
 import com.sun.music61.util.helpers.ImageLoadingServiceHelpers;
 import com.sun.music61.util.listener.ItemRecyclerOnClickListener;
@@ -39,15 +37,9 @@ public class AllSongsFragment extends Fragment implements AllSongsContract.View,
     private SwipeRefreshLayout mRefreshLayout;
     private RecyclerView mRecyclerMusics;
     private TrackAdapter mMusicAdapter;
-    private RecyclerView mRecyclerAudios;
-    private TrackAdapter mAudioAdapter;
 
     public static AllSongsFragment newInstance() {
         return new AllSongsFragment();
-    }
-
-    public AllSongsFragment() {
-        // Required empty public constructor
     }
 
     @Override
@@ -71,17 +63,11 @@ public class AllSongsFragment extends Fragment implements AllSongsContract.View,
         mSlider = rootView.findViewById(R.id.slider);
         Slider.init(new ImageLoadingServiceHelpers());
         mRecyclerMusics = rootView.findViewById(R.id.recyclerMusic);
-        mRecyclerAudios = rootView.findViewById(R.id.recyclerAudio);
         mMusicAdapter = new TrackAdapter(R.layout.item_track_square);
-        mAudioAdapter = new TrackAdapter(R.layout.item_track_square);
         mMusicAdapter.setOnItemClickListener(this);
-        mAudioAdapter.setOnItemClickListener(this);
         mRecyclerMusics.setLayoutManager(
                 new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
-        mRecyclerAudios.setLayoutManager(
-                new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         mRecyclerMusics.setAdapter(mMusicAdapter);
-        mRecyclerAudios.setAdapter(mAudioAdapter);
         mRefreshLayout = rootView.findViewById(R.id.swipeLayout);
         mRefreshLayout.setColorSchemeResources(
                 R.color.colorPrimary,
@@ -103,7 +89,6 @@ public class AllSongsFragment extends Fragment implements AllSongsContract.View,
         mDialogWaiting.show();
         mPresenter.loadAllBanners();
         mPresenter.loadAllTracks(Genres.ALL_MUSIC, OFFSET_DEFAULT);
-        mPresenter.loadAllTracks(Genres.ALL_AUDIO, OFFSET_DEFAULT);
     }
 
     @Override
@@ -123,30 +108,15 @@ public class AllSongsFragment extends Fragment implements AllSongsContract.View,
     }
 
     @Override
-    public void onGetTracksSuccess(String genres, List<Track> tracks) {
-        switch (genres) {
-            case Genres.ALL_MUSIC:
-                mRecyclerMusics.setVisibility(View.VISIBLE);
-                mMusicAdapter.updateData(tracks);
-                break;
-            case Genres.ALL_AUDIO:
-                mRecyclerAudios.setVisibility(View.VISIBLE);
-                mAudioAdapter.updateData(tracks);
-                break;
-        }
+    public void onGetTracksSuccess(List<Track> tracks) {
+        mRecyclerMusics.setVisibility(View.VISIBLE);
+        mMusicAdapter.updateData(tracks);
         mDialogWaiting.dismiss();
     }
 
     @Override
-    public void onDataTracksNotAvailable(String genres) {
-        switch (genres) {
-            case Genres.ALL_MUSIC:
-                mRecyclerMusics.setVisibility(View.GONE);
-                break;
-            case Genres.ALL_AUDIO:
-                mRecyclerAudios.setVisibility(View.GONE);
-                break;
-        }
+    public void onDataTracksNotAvailable() {
+        mRecyclerMusics.setVisibility(View.GONE);
         mDialogWaiting.dismiss();
     }
 

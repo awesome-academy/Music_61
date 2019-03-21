@@ -1,10 +1,9 @@
-package com.sun.music61.screen.home.presenter;
+package com.sun.music61.screen.home;
 
 import android.support.annotation.NonNull;
 import com.sun.music61.data.model.Track;
 import com.sun.music61.data.source.RepositoryCallBack;
 import com.sun.music61.data.source.repository.TracksRepository;
-import com.sun.music61.screen.home.contract.AllSongsContract;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,9 +44,9 @@ public class AllSongPresenter implements AllSongsContract.Presenter {
                     @Override
                     public <T> void onSuccess(List<T> objects) {
                         if (!objects.isEmpty()) {
-                            mView.onGetTracksSuccess(genres, (ArrayList<Track>) objects);
+                            mView.onGetTracksSuccess((ArrayList<Track>) objects);
                         } else {
-                            mView.onDataTracksNotAvailable(genres);
+                            mView.onDataTracksNotAvailable();
                         }
                     }
 

@@ -6,7 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.WindowManager;
 
 import com.sun.music61.R;
-import com.sun.music61.screen.home.HomeActivity;
+import com.sun.music61.screen.MainActivity;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
@@ -34,7 +34,7 @@ public class SplashActivity extends AppCompatActivity {
             } catch (Exception ignored) {
 
             } finally {
-                startActivity(HomeActivity.newInstance(getApplicationContext()));
+                startActivity(MainActivity.newInstance(getApplicationContext()));
                 finish();
             }
         }).start();
