@@ -1,8 +1,7 @@
-package com.sun.music61.screen.home.presenter;
+package com.sun.music61.screen.home;
 
 import android.support.annotation.NonNull;
 import com.sun.music61.data.source.repository.TracksRepository;
-import com.sun.music61.screen.home.contract.HomeContract;
 
 public class HomePresenter implements HomeContract.Presenter {
 

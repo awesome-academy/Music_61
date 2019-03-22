@@ -8,7 +8,7 @@
     <string name="title_favorite">Favorite</string>
     <string name="title_search">Search</string>
     <!--Sub title-->
-    <string name="sub_title_home">playing online music</string>
+    <string name="sub_title_slogan">playing music</string>
     <!--Text-->
     <string name="text_name_song">Name of songs</string>
     <string name="text_name_author">Name of author</string>
@@ -16,4 +16,5 @@
     <string name="text_show_all">Show all</string>
     <string name="text_all_audio">All audio</string>
     <string name="text_waiting">Please waiting…</string>
+    <string name="text_coming_soon">Coming soon!</string>
 </resources>

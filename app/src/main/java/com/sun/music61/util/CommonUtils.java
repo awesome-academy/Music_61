@@ -53,6 +53,11 @@ public class CommonUtils {
         String COUNTRY = "Country";
     }
 
+    public interface Font {
+        String ARKHIP = "fonts/arkhip.ttf";
+        String NABILA = "fonts/nabila.ttf";
+    }
+
     public static <T> boolean checkNotNull(T reference) {
         return reference != null && !reference.equals("") && !reference.equals("null");
     }

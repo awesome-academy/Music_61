@@ -1,4 +1,4 @@
-package com.sun.music61.screen.home.fragment;
+package com.sun.music61.screen.home;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -22,10 +22,6 @@ public class GenresFragment extends Fragment {
         args.putString(ARGUMENT_GENRES, genres);
         fragment.setArguments(args);
         return fragment;
-    }
-
-    public GenresFragment() {
-        // Required empty public constructor
     }
 
     @Override
