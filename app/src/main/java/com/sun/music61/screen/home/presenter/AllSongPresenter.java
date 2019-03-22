@@ -5,7 +5,6 @@ import com.sun.music61.data.model.Track;
 import com.sun.music61.data.source.RepositoryCallBack;
 import com.sun.music61.data.source.repository.TracksRepository;
 import com.sun.music61.screen.home.contract.AllSongsContract;
-import com.sun.music61.util.CommonUtils;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +20,22 @@ public class AllSongPresenter implements AllSongsContract.Presenter {
         mRepository = repository;
         mView = view;
         mView.setPresenter(this);
+    }
+
+    @Override
+    public void loadAllBanners() {
+        mRepository.getBanners(new RepositoryCallBack() {
+            @Override
+            public <T> void onSuccess(List<T> objects) {
+                if (!objects.isEmpty()) mView.onGetBannersSuccess((ArrayList<Track>) objects);
+                else mView.onDataBannersNotAvailable();
+            }
+
+            @Override
+            public void onFailed(Throwable throwable) {
+                mView.showErrors(throwable.getMessage());
+            }
+        });
     }
 
     @Override

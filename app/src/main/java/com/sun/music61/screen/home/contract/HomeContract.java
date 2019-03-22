@@ -9,11 +9,8 @@ import java.util.List;
 public interface HomeContract {
 
     interface View extends BaseView<Presenter> {
-        void onGetBannersSuccess(List<Track> banners);
-        void onDataBannersNotAvailable();
     }
 
     interface Presenter extends BasePresenter {
-        void loadBanners();
     }
 }

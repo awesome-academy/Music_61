@@ -2,11 +2,11 @@
     <string name="app_name">Sun*</string>
     <string name="slogan"><b>Make awesome things</b>\nthat matter.</string>
     <!--Menu title-->
+    <string name="title_home">Home</string>
     <string name="title_my_library">Library</string>
     <string name="title_setting">Setting</string>
     <string name="title_favorite">Favorite</string>
     <string name="title_search">Search</string>
-    <string name="title_home">Home</string>
     <!--Sub title-->
     <string name="sub_title_home">playing online music</string>
     <!--Text-->
@@ -15,4 +15,5 @@
     <string name="text_all_music">All music</string>
     <string name="text_show_all">Show all</string>
     <string name="text_all_audio">All audio</string>
+    <string name="text_waiting">Please waiting…</string>
 </resources>
