@@ -7,13 +7,11 @@ import android.support.annotation.Nullable;
 import com.google.common.base.Function;
 import com.sun.music61.data.model.Track;
 import com.sun.music61.data.source.TracksDataSource;
-import java.util.List;
 
-public class TracksLocalDataSource implements TracksDataSource {
+public class TracksLocalDataSource implements TracksDataSource.LocalDataSource {
 
     @Nullable
     private static TracksLocalDataSource sInstance;
-
     @NonNull
     private Function<Cursor, Track> mTrackMapperFunction;
 
@@ -29,12 +27,5 @@ public class TracksLocalDataSource implements TracksDataSource {
 
     public static void destroyInstance() {
         sInstance = null;
-    }
-
-    @Override
-    public List<Track> getBanners() {
-        // Not required
-        // banners get from server.
-        return null;
     }
 }

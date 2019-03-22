@@ -4,8 +4,8 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import com.sun.music61.screen.home.AllSongsFragment;
-import com.sun.music61.screen.home.GenresFragment;
+import com.sun.music61.screen.home.fragment.AllSongsFragment;
+import com.sun.music61.screen.home.fragment.GenresFragment;
 
 import static com.sun.music61.util.CommonUtils.Genres;
 import static com.sun.music61.util.CommonUtils.TitleFragment;

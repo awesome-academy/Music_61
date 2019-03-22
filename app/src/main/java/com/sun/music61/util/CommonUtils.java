@@ -2,13 +2,16 @@ package com.sun.music61.util;
 
 import android.graphics.Bitmap;
 import android.widget.ImageView;
+import com.sun.music61.BuildConfig;
 import com.sun.music61.util.helpers.ImageFactory;
 import com.sun.music61.util.listener.FetchImageCallBack;
 
 public class CommonUtils {
 
     public static final String URL_SERVER = "http://api.soundcloud.com";
-
+    public static final String API_TRACKS = CommonUtils.URL_SERVER
+            + CommonUtils.APIReference.TRACKS + "?"
+            + CommonUtils.KeyParams.CLIENT_ID + BuildConfig.API_KEY + "&";
     /**
      * API SoundCloud return:
      * JPEG, PNG and GIF are  will be encoded to multiple JPEGs in these formats:
@@ -29,11 +32,13 @@ public class CommonUtils {
         String TAGS = "tags=";
         String LIMIT = "limit=";
         String OFFSET = "offset=";
+        String ORDER = "order=";
+        String GENRES = "genres=";
     }
 
     public interface Genres {
-        String ALL_MUSIC = "all-music";
-        String ALL_AUDIO = "all-audio";
+        String ALL_MUSIC = "music";
+        String ALL_AUDIO = "audio";
         String ALTERNATIVE_ROCK = "alternativerock";
         String AMBIENT = "ambient";
         String CLASSICAL = "classical";
@@ -46,6 +51,10 @@ public class CommonUtils {
         String AMBIENT = "Ambient";
         String CLASSICAL = "Classical";
         String COUNTRY = "Country";
+    }
+
+    public static <T> boolean checkNotNull(T reference) {
+        return reference != null && !reference.equals("") && !reference.equals("null");
     }
 
     public static void loadImageFromUrl(ImageView image, String url, String type) {

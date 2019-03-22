@@ -11,10 +11,13 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 import com.sun.music61.R;
 import com.sun.music61.screen.home.adapter.CustomSliderAdapter;
 import com.sun.music61.screen.home.adapter.HomePagerAdapter;
 import com.sun.music61.data.model.Track;
+import com.sun.music61.screen.home.contract.HomeContract;
+import com.sun.music61.screen.home.presenter.HomePresenter;
 import com.sun.music61.util.RepositoryInstance;
 import com.sun.music61.util.helpers.ImageLoadingServiceHelpers;
 import java.util.List;
@@ -24,9 +27,7 @@ import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class HomeActivity extends AppCompatActivity implements HomeContract.HomeActivityView {
-
-    private static final String TAG = HomeActivity.class.getName();
+public class HomeActivity extends AppCompatActivity implements HomeContract.View {
 
     private HomeContract.Presenter mPresenter;
     private Slider mSlider;
@@ -50,11 +51,10 @@ public class HomeActivity extends AppCompatActivity implements HomeContract.Home
                         .build());
         setContentView(R.layout.home_activity);
         initView();
-        // Declare presenter
         mPresenter = new HomePresenter(
                 RepositoryInstance.getInstanceTrackRepository(getApplicationContext()), this);
         mPresenter.loadBanners();
-        handleEvent();
+        onListenerEvent();
     }
 
     private void initView() {
@@ -63,18 +63,15 @@ public class HomeActivity extends AppCompatActivity implements HomeContract.Home
         toolbar.setSubtitle(R.string.sub_title_home);
         toolbar.setTitleTextColor(getResources().getColor(android.R.color.white));
         setSupportActionBar(toolbar);
-
         mSlider = findViewById(R.id.slider);
         Slider.init(new ImageLoadingServiceHelpers());
-
         ViewPager viewPager = findViewById(R.id.viewPager);
         viewPager.setAdapter(new HomePagerAdapter(getSupportFragmentManager()));
-
         TabLayout tabLayout = findViewById(R.id.tabLayout);
         tabLayout.setupWithViewPager(viewPager);
     }
 
-    private void handleEvent() {
+    private void onListenerEvent() {
         mSlider.setOnSlideClickListener(position -> {
             // code late
         });
@@ -86,31 +83,19 @@ public class HomeActivity extends AppCompatActivity implements HomeContract.Home
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        mPresenter.subscribe();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        mPresenter.unsubscribe();
-    }
-
-    @Override
-    public void showBanners(List<Track> banners) {
+    public void onGetBannersSuccess(List<Track> banners) {
         mSlider.setVisibility(View.VISIBLE);
         mSlider.setAdapter(new CustomSliderAdapter(banners));
     }
 
     @Override
-    public void showNoBanners() {
+    public void onDataBannersNotAvailable() {
         mSlider.setVisibility(View.GONE);
     }
 
     @Override
     public void showErrors(String message) {
-        Log.e(TAG, "showErrors: " + message);
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
     @Override

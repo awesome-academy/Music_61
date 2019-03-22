@@ -2,38 +2,44 @@ package com.sun.music61.data.source.repository;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-
-import com.sun.music61.data.model.Track;
+import com.sun.music61.data.source.RepositoryCallBack;
 import com.sun.music61.data.source.TracksDataSource;
 
-import java.util.List;
-
-public class TracksRepository implements TracksDataSource {
+public class TracksRepository implements TracksDataSource.RemoteDataSource,
+        TracksDataSource.LocalDataSource {
 
     @Nullable
     private static TracksRepository sInstance;
-
     @NonNull
-    private final TracksDataSource mTracksRemoteDataSource;
-
+    private final TracksDataSource.RemoteDataSource mTracksRemoteDataSource;
     @NonNull
-    private final TracksDataSource mTracksLocalDataSource;
+    private final TracksDataSource.LocalDataSource mTracksLocalDataSource;
 
-    private TracksRepository(@NonNull TracksDataSource tracksRemoteDataSource, @NonNull TracksDataSource tracksLocalDataSource) {
+    private TracksRepository(@NonNull TracksDataSource.RemoteDataSource tracksRemoteDataSource,
+            @NonNull TracksDataSource.LocalDataSource tracksLocalDataSource) {
         mTracksRemoteDataSource = tracksRemoteDataSource;
         mTracksLocalDataSource = tracksLocalDataSource;
     }
 
-    public static TracksRepository getInstance(@NonNull TracksDataSource tracksRemoteDataSource, @NonNull TracksDataSource tracksLocalDataSource) {
-        if (sInstance == null)
+    public static TracksRepository getInstance(@NonNull TracksDataSource.RemoteDataSource tracksRemoteDataSource,
+            @NonNull TracksDataSource.LocalDataSource tracksLocalDataSource) {
+        if (sInstance == null) {
             sInstance = new TracksRepository(tracksRemoteDataSource, tracksLocalDataSource);
+        }
         return sInstance;
     }
 
-    public static void destroyInstance() { sInstance = null; }
+    public static void destroyInstance() {
+        sInstance = null;
+    }
 
     @Override
-    public List<Track> getBanners() {
-        return mTracksRemoteDataSource.getBanners();
+    public void getBanners(RepositoryCallBack callback) {
+        mTracksRemoteDataSource.getBanners(callback);
+    }
+
+    @Override
+    public void getTracksByGenres(String genres, String offset, RepositoryCallBack callback) {
+        mTracksRemoteDataSource.getTracksByGenres(genres, offset, callback);
     }
 }

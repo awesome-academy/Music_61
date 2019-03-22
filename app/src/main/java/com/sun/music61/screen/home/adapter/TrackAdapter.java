@@ -74,7 +74,7 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.ViewHolder> 
 
         private void bindData(Track track) {
             mTrack = track;
-            if (track.getArtworkUrl() != null) {
+            if (CommonUtils.checkNotNull(track.getArtworkUrl())) {
                 CommonUtils.loadImageFromUrl(mImageSong, track.getArtworkUrl(), CommonUtils.T300);
             } else {
                 mImageSong.setImageResource(R.drawable.ic_filter_hdr_black_124dp);
@@ -85,7 +85,7 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.ViewHolder> 
 
         @Override
         public void onClick(View view) {
-            if (mListener != null) mListener.onClickListener(mTrack, getAdapterPosition());
+            if (mListener != null) mListener.onRecyclerItemClick(mTrack, getAdapterPosition());
         }
     }
 }

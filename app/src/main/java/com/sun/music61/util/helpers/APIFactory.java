@@ -2,9 +2,10 @@ package com.sun.music61.util.helpers;
 
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.support.annotation.NonNull;
 import android.util.Log;
-
+import com.sun.music61.data.model.Response;
+import com.sun.music61.util.CommonUtils;
+import com.sun.music61.util.listener.APICallback;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -25,51 +26,31 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * This provides methods to help connect api working with AsyncTask.
  */
-public class ConnectAPIHelpers extends AsyncTask<String, Void, HashMap<String, String>> {
+public class APIFactory extends AsyncTask<Void, Void, Response> {
 
-    private static final String TAG = ConnectAPIHelpers.class.getName();
-
+    private static final String TAG = APIFactory.class.getName();
     private static final int READ_TIMEOUT = 5000;
     private static final int CONNECTION_TIMEOUT = 5000;
 
-    /**
-     * Key for HashMap response.
-     */
-    public interface Constants {
-        String DATA = "DATA";
-        String STATUS_CODE = "STATUS_CODE";
-    }
-
-    /**
-     * Used with the type method in request.
-     */
     public interface Method {
         String GET = "GET";
         String POST = "POST";
     }
 
     private String mUrl;
-
     private String mMethod;
-
-    private StringBuffer mData;
-
     private List<HashMap<String, String>> mAttributes;
+    private APICallback mAPICallback;
 
-    public ConnectAPIHelpers(@NonNull String url) {
-        mUrl = checkNotNull(url);
-        mMethod = Method.GET;
+    public static Builder Builder() {
+        return new Builder();
     }
 
-    public ConnectAPIHelpers(@NonNull String url, String method) {
-        mUrl = checkNotNull(url);
-        mMethod = method;
-    }
-
-    public ConnectAPIHelpers(@NonNull String url, String method, List<HashMap<String, String>> attrs) {
-        mUrl = checkNotNull(url);
-        mMethod = method;
-        mAttributes = attrs;
+    public APIFactory(final Builder builder) {
+        mUrl = builder.getUrl();
+        mMethod = builder.getMethod();
+        mAttributes = builder.getAttributes();
+        mAPICallback = builder.getCallback();
     }
 
     @Override
@@ -78,10 +59,9 @@ public class ConnectAPIHelpers extends AsyncTask<String, Void, HashMap<String, S
     }
 
     @Override
-    protected HashMap<String, String> doInBackground(String... strings) {
-        int statusCode = 0;
-        HashMap<String, String> response = new HashMap<>();
+    protected Response doInBackground(Void... voids) {
         try {
+            StringBuffer result = null;
             URL urlParse = new URL(mUrl);
             HttpURLConnection httpURLConnection = (HttpURLConnection) urlParse.openConnection();
             httpURLConnection.setConnectTimeout(CONNECTION_TIMEOUT);
@@ -89,25 +69,31 @@ public class ConnectAPIHelpers extends AsyncTask<String, Void, HashMap<String, S
             switch (mMethod) {
                 case Method.GET:
                     httpURLConnection.setRequestMethod(Method.GET);
-                    mData = fetchData(httpURLConnection);
+                    result = fetchData(httpURLConnection);
                     break;
                 case Method.POST:
                     httpURLConnection.setRequestMethod(Method.POST);
-                    mData = configPostMethod(httpURLConnection);
+                    result = configPostMethod(httpURLConnection);
                     break;
             }
 
-            statusCode = httpURLConnection.getResponseCode();
-            response.put(Constants.DATA, String.valueOf(mData));
-            response.put(Constants.STATUS_CODE, String.valueOf(statusCode));
-
+            return new Response(httpURLConnection.getResponseCode(), result);
         } catch (MalformedURLException e) {
-            Log.e(TAG, "doInBackground: " + e.getMessage());
+            mAPICallback.onFailure(e);
         } catch (IOException e) {
-            Log.e(TAG, "doInBackground: " + e.getMessage());
+            mAPICallback.onFailure(e);
         }
 
-        return response;
+        return null;
+    }
+
+    @Override
+    protected void onPostExecute(Response response) {
+        super.onPostExecute(response);
+        if (response != null)
+            mAPICallback.onResponse(response);
+        else
+            mAPICallback.onFailure(new NullPointerException("Response is null"));
     }
 
     private StringBuffer fetchData(HttpURLConnection httpURLConnection) {
@@ -180,5 +166,55 @@ public class ConnectAPIHelpers extends AsyncTask<String, Void, HashMap<String, S
             Log.e(TAG, "configPostMethod: " + e.getMessage());
         }
         return null;
+    }
+
+
+    public static class Builder {
+        private String mUrl;
+        private APICallback mCallback;
+        private String mMethod;
+        List<HashMap<String, String>> mAttributes;
+
+        public Builder baseUrl(String url) {
+            mUrl = url;
+            return this;
+        }
+
+        public Builder method(String method) {
+            mMethod = method;
+            return this;
+        }
+
+        public Builder attribute(List<HashMap<String, String>> attributes) {
+            mAttributes = attributes;
+            return this;
+        }
+
+        public Builder enqueue(APICallback callback) {
+            mCallback = callback;
+            return this;
+        }
+
+        public void build() {
+            mUrl = CommonUtils.checkNotNull(mUrl) ? mUrl : Method.GET;
+            mMethod = CommonUtils.checkNotNull(mMethod) ? mMethod : Method.GET;
+            new APIFactory(this).execute();
+        }
+
+        private String getUrl() {
+            return mUrl;
+        }
+
+        private APICallback getCallback() {
+            return mCallback;
+        }
+
+        private String getMethod() {
+            return mMethod;
+        }
+
+        private List<HashMap<String, String>> getAttributes() {
+            return mAttributes;
+        }
     }
 }

@@ -46,17 +46,16 @@ public class ImageFactory extends AsyncTask<Void, Void, Bitmap> {
 
         public Builder url(String urlImg) {
             mUrl = urlImg;
-            type(CommonUtils.LARGE); // Default
             return this;
         }
 
         public Builder type(String imageType) {
             switch (imageType) {
                 case CommonUtils.T300:
-                    mUrl.replace(CommonUtils.LARGE, CommonUtils.T300);
+                    mUrl = mUrl.replace(CommonUtils.LARGE, CommonUtils.T300);
                     break;
                 case CommonUtils.T500:
-                    mUrl.replace(CommonUtils.LARGE, CommonUtils.T500);
+                    mUrl = mUrl.replace(CommonUtils.LARGE, CommonUtils.T500);
                     break;
                 case CommonUtils.LARGE:
                 default:
@@ -81,14 +80,14 @@ public class ImageFactory extends AsyncTask<Void, Void, Bitmap> {
             return this;
         }
 
-        public ImageFactory build() {
+        public void build() {
             if (mUrl.isEmpty())
                 throw new IllegalStateException();
             if (mWidth < 0 || mHeight < 0)
                 throw new ArithmeticException();
             if (mCallback == null)
                 throw new NullPointerException();
-            return (ImageFactory) new ImageFactory(this).execute();
+            new ImageFactory(this).execute();
         }
 
         private String getUrl() {
