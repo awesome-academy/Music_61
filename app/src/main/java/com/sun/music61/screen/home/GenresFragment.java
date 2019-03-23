@@ -3,6 +3,7 @@ package com.sun.music61.screen.home;
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -16,6 +17,8 @@ import com.sun.music61.data.model.Track;
 import com.sun.music61.screen.MainActivity;
 import com.sun.music61.screen.home.adapter.TrackAdapter;
 import com.sun.music61.screen.play.PlayFragment;
+import com.sun.music61.screen.service.PlayTrackListener;
+import com.sun.music61.screen.service.PlayTrackService;
 import com.sun.music61.util.CommonUtils;
 import com.sun.music61.util.RepositoryInstance;
 import com.sun.music61.util.helpers.OnScrollPagination;
@@ -27,7 +30,7 @@ import java.util.Objects;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class GenresFragment extends Fragment implements GenresContract.View,
-        ItemRecyclerOnClickListener {
+        ItemRecyclerOnClickListener, PlayTrackListener {
 
     private static final String ARGUMENT_GENRES = "ARGUMENT_GENRES";
     private static final int ZERO = 0;
@@ -39,6 +42,7 @@ public class GenresFragment extends Fragment implements GenresContract.View,
     private AlertDialog mDialogWaiting;
     private int mOffset;
     private String mGenres;
+    private PlayTrackService mService;
 
     public static GenresFragment newInstance(String genres) {
         GenresFragment fragment = new GenresFragment();
@@ -58,6 +62,13 @@ public class GenresFragment extends Fragment implements GenresContract.View,
         mPresenter = new GenresPresenter(RepositoryInstance.getInstanceTrackRepository(), this);
         onListenerEvent();
         return rootView;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        mService = ((MainActivity) Objects.requireNonNull(getActivity())).getService();
+        mService.addListeners(this);
     }
 
     private void initView(View rootView) {
@@ -124,8 +135,25 @@ public class GenresFragment extends Fragment implements GenresContract.View,
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mService.removeListener(this);
+    }
+
+    @Override
     public void onRecyclerItemClick(Object object, int position) {
+        mService.changeTrack((Track) object);
         MainActivity.replaceFragment((AppCompatActivity) Objects.requireNonNull(getActivity()),
                 PlayFragment.newInstance((Track) object));
+    }
+
+    @Override
+    public void onState(int state) {
+
+    }
+
+    @Override
+    public void onTrackChanged(Track track) {
+
     }
 }

@@ -3,6 +3,7 @@ package com.sun.music61.screen.home;
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -18,6 +19,8 @@ import com.sun.music61.screen.MainActivity;
 import com.sun.music61.screen.home.adapter.CustomSliderAdapter;
 import com.sun.music61.screen.home.adapter.TrackAdapter;
 import com.sun.music61.screen.play.PlayFragment;
+import com.sun.music61.screen.service.PlayTrackListener;
+import com.sun.music61.screen.service.PlayTrackService;
 import com.sun.music61.util.ActivityUtils;
 import com.sun.music61.util.CommonUtils;
 import com.sun.music61.util.RepositoryInstance;
@@ -33,7 +36,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.sun.music61.util.CommonUtils.Genres;
 
 public class AllSongsFragment extends Fragment implements AllSongsContract.View,
-        ItemRecyclerOnClickListener {
+        ItemRecyclerOnClickListener, PlayTrackListener {
 
     private static final int ZERO = 0;
 
@@ -44,6 +47,7 @@ public class AllSongsFragment extends Fragment implements AllSongsContract.View,
     private RecyclerView mRecycler;
     private TrackAdapter mAdapter;
     private int mOffset;
+    private PlayTrackService mService;
 
     public static AllSongsFragment newInstance() {
         return new AllSongsFragment();
@@ -57,6 +61,13 @@ public class AllSongsFragment extends Fragment implements AllSongsContract.View,
         mPresenter = new AllSongPresenter(RepositoryInstance.getInstanceTrackRepository(), this);
         onListenerEvent();
         return rootView;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        mService = ((MainActivity) Objects.requireNonNull(getActivity())).getService();
+        mService.addListeners(this);
     }
 
     private void initView(View rootView) {
@@ -110,10 +121,10 @@ public class AllSongsFragment extends Fragment implements AllSongsContract.View,
     public void onGetBannersSuccess(List<Track> banners) {
         mSlider.setVisibility(View.VISIBLE);
         mSlider.setAdapter(new CustomSliderAdapter(banners));
-        mSlider.setOnSlideClickListener(
-                position ->
-                        MainActivity.replaceFragment((AppCompatActivity) Objects.requireNonNull(getActivity()),
-                                PlayFragment.newInstance(banners.get(position)))
+        mSlider.setOnSlideClickListener(position -> {
+                    mService.changeTrack(banners.get(position));
+                    MainActivity.replaceFragment((AppCompatActivity) Objects.requireNonNull(getActivity()),
+                            PlayFragment.newInstance(banners.get(position))); }
         );
     }
 
@@ -146,7 +157,24 @@ public class AllSongsFragment extends Fragment implements AllSongsContract.View,
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mService.removeListener(this);
+    }
+
+    @Override
     public void onRecyclerItemClick(Object object, int position) {
+        mService.changeTrack((Track) object);
         MainActivity.replaceFragment((AppCompatActivity) Objects.requireNonNull(getActivity()), PlayFragment.newInstance((Track) object));
+    }
+
+    @Override
+    public void onState(int state) {
+
+    }
+
+    @Override
+    public void onTrackChanged(Track track) {
+
     }
 }
