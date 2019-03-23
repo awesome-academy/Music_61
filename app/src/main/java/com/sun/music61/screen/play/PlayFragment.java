@@ -14,12 +14,15 @@ import android.widget.TextView;
 import com.flaviofaria.kenburnsview.KenBurnsView;
 import com.sun.music61.R;
 import com.sun.music61.data.model.Track;
+import com.sun.music61.media.MediaPlayerManager;
+import com.sun.music61.media.State;
 import com.sun.music61.util.CommonUtils;
 import de.hdodenhof.circleimageview.CircleImageView;
 import java.util.Objects;
 import me.tankery.lib.circularseekbar.CircularSeekBar;
 
-public class PlayFragment extends Fragment {
+public class PlayFragment extends Fragment
+        implements CircularSeekBar.OnCircularSeekBarChangeListener {
 
     private static final String ARGUMENT_TRACK = "ARGUMENT_TRACK";
 
@@ -35,6 +38,7 @@ public class PlayFragment extends Fragment {
     private ImageView mButtonRepeat;
     private ImageView mImagePlay;
     private Track mTrack;
+    private MediaPlayerManager mPlayerManager;
 
     public static PlayFragment newInstance(Track track) {
         PlayFragment fragment = new PlayFragment();
@@ -51,6 +55,7 @@ public class PlayFragment extends Fragment {
         mTrack = Objects.requireNonNull(getArguments()).getParcelable(ARGUMENT_TRACK);
         View rootView = inflater.inflate(R.layout.play_fragment, container, false);
         initView(rootView);
+        onListenerEvent();
         return rootView;
     }
 
@@ -58,6 +63,14 @@ public class PlayFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         fetchDataTrack(mTrack);
+        // Playing
+        onPlayMusic();
+    }
+
+    private void onPlayMusic() {
+        mPlayerManager = MediaPlayerManager.getInstance(getContext());
+        mPlayerManager.create(mTrack);
+        mPlayerManager.start();
     }
 
     private void initView(View rootView) {
@@ -85,5 +98,44 @@ public class PlayFragment extends Fragment {
         mToolbar.setSubtitle(mTrack.getUser().getUsername());
         CommonUtils.loadImageFromUrl(mImageBackground, track.getArtworkUrl(), CommonUtils.T500);
         CommonUtils.loadImageFromUrl(mImageSong, track.getArtworkUrl(), CommonUtils.T300);
+    }
+
+    private void onListenerEvent() {
+        mButtonPlay.setOnClickListener(view -> play());
+        mSeekBarProccess.setOnSeekBarChangeListener(this);
+    }
+
+    private void play() {
+        if (mPlayerManager.getState() == State.PLAY) {
+            mPlayerManager.pause();
+            //Changing button image to play Button
+            mImagePlay.setImageResource(R.drawable.ic_play_48dp);
+        } else {
+            //Resume song
+            mPlayerManager.start();
+            mImagePlay.setImageResource(R.drawable.ic_pause_48dp);
+        }
+    }
+
+    @Override
+    public void onProgressChanged(CircularSeekBar circularSeekBar, float progress,
+            boolean fromUser) {
+        // Code late
+    }
+
+    @Override
+    public void onStopTrackingTouch(CircularSeekBar seekBar) {
+        // Code late
+    }
+
+    @Override
+    public void onStartTrackingTouch(CircularSeekBar seekBar) {
+        // Code late
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mPlayerManager.release();
     }
 }
