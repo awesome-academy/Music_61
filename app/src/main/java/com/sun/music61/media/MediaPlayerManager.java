@@ -53,10 +53,13 @@ public class MediaPlayerManager implements Control {
         mMediaPlayer.reset();
         try {
             mMediaPlayer.setDataSource(mService, Uri.parse(track.getStreamUrl() + CommonUtils.AUTHORIZED_SERVER));
-            mMediaPlayer.prepare();
         } catch (IOException e) {
             // Do nothing
         }
+        mMediaPlayer.setOnErrorListener(mService);
+        mMediaPlayer.setOnCompletionListener(mService);
+        mMediaPlayer.setOnPreparedListener(mService);
+        mMediaPlayer.prepareAsync();
     }
 
     @Override
