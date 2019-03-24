@@ -33,6 +33,13 @@ public class CommonUtils {
         int THOUSAND = 1000;
     }
 
+    public interface Action {
+        String ACTION_PLAY_AND_PAUSE = "com.sun.music61.ACTION_PLAY_AND_PAUSE";
+        String ACTION_NEXT = "com.sun.music61.ACTION_NEXT";
+        String ACTION_PREVIOUS = "com.sun.music61.ACTION_PREVIOUS";
+        String ACTION_FAVORITE = "com.sun.music61.ACTION_FAVORITE";
+    }
+
     public interface Constants {
         String TAG_SONG = "songs";
         String ORDER = "created_at";
@@ -94,8 +101,7 @@ public class CommonUtils {
                     }
 
                     @Override
-                    public void onError(Exception ex) {
-                        ex.printStackTrace();
+                    public void onFailure() {
                     }
                 })
                 .build();

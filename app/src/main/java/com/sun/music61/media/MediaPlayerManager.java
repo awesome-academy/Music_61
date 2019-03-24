@@ -64,21 +64,20 @@ public class MediaPlayerManager implements Control {
 
     @Override
     public void start() {
-        setState(State.PLAY);
         mMediaPlayer.start();
+        setState(State.PLAY);
     }
 
     @Override
     public void change(Track track) {
-        setState(State.PAUSE);
         mCurrentTrack = track;
         create(track);
     }
 
     @Override
     public void pause() {
-        setState(State.PAUSE);
         mMediaPlayer.pause();
+        setState(State.PAUSE);
     }
 
     @Override
