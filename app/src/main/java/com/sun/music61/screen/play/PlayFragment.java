@@ -9,6 +9,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -59,6 +62,12 @@ public class PlayFragment extends Fragment implements
         args.putParcelable(ARGUMENT_TRACK, track);
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -176,6 +185,24 @@ public class PlayFragment extends Fragment implements
     @Override
     public void onStartTrackingTouch(CircularSeekBar seekBar) {
         mTextDuration.setText(CommonUtils.convertTimeInMilisToString((long) seekBar.getProgress()));
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        Objects.requireNonNull(getActivity())
+                .getMenuInflater().inflate(R.menu.option_menu_play, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.actionPlayList:
+                TracksModalFragment.showInstance(getChildFragmentManager());
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.sun.music61.screen.play.adapter;
 
 import android.content.res.Resources;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,11 +12,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import com.sun.music61.R;
 import com.sun.music61.data.model.Track;
+import com.sun.music61.util.listener.ItemTouchAdapterListener;
+import com.sun.music61.util.listener.ItemTouchViewHolderListener;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-public class TracksModalAdapter extends RecyclerView.Adapter<TracksModalAdapter.ViewHolder> {
+public class TracksModalAdapter extends RecyclerView.Adapter<TracksModalAdapter.ViewHolder>
+        implements ItemTouchAdapterListener {
 
     private static final int POSITION_START = 0;
 
@@ -68,7 +73,20 @@ public class TracksModalAdapter extends RecyclerView.Adapter<TracksModalAdapter.
         return mTracks != null ? mTracks.size() : 0;
     }
 
-    static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    @Override
+    public boolean onItemMove(int fromPosition, int toPosition) {
+        Collections.swap(mTracks, fromPosition, toPosition);
+        notifyItemMoved(fromPosition, toPosition);
+        return true;
+    }
+
+    @Override
+    public void onItemMoved() {
+        notifyDataSetChanged();
+    }
+
+    static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener,
+            ItemTouchViewHolderListener {
 
         private Track mTrack;
         private TextView mTextCount;
@@ -142,9 +160,19 @@ public class TracksModalAdapter extends RecyclerView.Adapter<TracksModalAdapter.
                 }
             }
         }
+
+        @Override
+        public void onItemSelected() {
+            itemView.setBackgroundColor(ContextCompat.getColor(itemView.getContext(), R.color.colorAccent));
+        }
+
+        @Override
+        public void onItemClear() {
+            itemView.setBackgroundColor(0);
+        }
     }
 
-    interface TrackModalClickListener {
+    public interface TrackModalClickListener {
         void onTrackClick(Track track);
         void onRemoveTrackClick(Track track);
     }

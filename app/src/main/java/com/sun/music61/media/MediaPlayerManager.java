@@ -8,6 +8,8 @@ import com.sun.music61.data.model.Track;
 import com.sun.music61.screen.service.PlayTrackService;
 import com.sun.music61.util.CommonUtils;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MediaPlayerManager implements Control {
 
@@ -16,6 +18,7 @@ public class MediaPlayerManager implements Control {
 
     private PlayTrackService mService;
     private Track mCurrentTrack;
+    private List<Track> mTracks;
     private MediaPlayer mMediaPlayer;
     @State
     private int mState;
@@ -24,12 +27,28 @@ public class MediaPlayerManager implements Control {
         mService = service;
         mState = State.PAUSE;
         mMediaPlayer = new MediaPlayer();
+        mTracks = new ArrayList<>();
     }
 
     public static MediaPlayerManager getInstance(PlayTrackService service) {
         if (sInstance == null)
             sInstance = new MediaPlayerManager(service);
         return sInstance;
+    }
+
+    public void setTracks(List<Track> tracks) {
+        if (tracks != null) {
+            mTracks.clear();
+            mTracks.addAll(tracks);
+        }
+    }
+
+    public List<Track> getTracks() {
+        return mTracks;
+    }
+
+    public void removeTrack(Track track) {
+        if (track != null) mTracks.remove(track);
     }
 
     public Track getCurrentTrack() {
