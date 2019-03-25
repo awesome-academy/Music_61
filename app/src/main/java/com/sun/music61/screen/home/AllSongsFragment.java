@@ -48,6 +48,7 @@ public class AllSongsFragment extends Fragment implements AllSongsContract.View,
     private TrackAdapter mAdapter;
     private int mOffset;
     private PlayTrackService mService;
+    private List<Track> mTracks;
 
     public static AllSongsFragment newInstance() {
         return new AllSongsFragment();
@@ -122,9 +123,10 @@ public class AllSongsFragment extends Fragment implements AllSongsContract.View,
         mSlider.setVisibility(View.VISIBLE);
         mSlider.setAdapter(new CustomSliderAdapter(banners));
         mSlider.setOnSlideClickListener(position -> {
+                    mService.setTracks(banners);
                     mService.changeTrack(banners.get(position));
                     MainActivity.replaceFragment((AppCompatActivity) Objects.requireNonNull(getActivity()),
-                            PlayFragment.newInstance(banners.get(position))); }
+                            PlayFragment.newInstance()); }
         );
     }
 
@@ -135,6 +137,7 @@ public class AllSongsFragment extends Fragment implements AllSongsContract.View,
 
     @Override
     public void onGetTracksSuccess(List<Track> tracks) {
+        mTracks = tracks;
         if (mOffset == ZERO) {
             mAdapter.updateData(tracks);
             mRefreshLayout.setRefreshing(false);
@@ -164,8 +167,9 @@ public class AllSongsFragment extends Fragment implements AllSongsContract.View,
 
     @Override
     public void onRecyclerItemClick(Object object, int position) {
+        mService.setTracks(mTracks);
         mService.changeTrack((Track) object);
-        MainActivity.replaceFragment((AppCompatActivity) Objects.requireNonNull(getActivity()), PlayFragment.newInstance((Track) object));
+        MainActivity.replaceFragment((AppCompatActivity) Objects.requireNonNull(getActivity()), PlayFragment.newInstance());
     }
 
     @Override

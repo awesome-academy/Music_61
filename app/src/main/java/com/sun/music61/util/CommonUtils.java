@@ -27,6 +27,7 @@ public class CommonUtils {
 
     public interface Number {
         int ZERO = 0;
+        int ONE = 1;
         int TEN = 10;
         int SIXTY = 60;
         int HUNDRED = 100;
@@ -102,6 +103,7 @@ public class CommonUtils {
 
                     @Override
                     public void onFailure() {
+                        // Do nothing because image is default errorDrawable
                     }
                 })
                 .build();

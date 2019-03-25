@@ -33,7 +33,6 @@ TracksModalAdapter.TrackModalClickListener {
     private RecyclerView mRecyclerTracks;
     private PlayTrackService mService;
     private TracksModalAdapter mAdapter;
-    private List<Track> mTracks;
     private LinearLayoutManager mLayoutManager;
 
     public static void showInstance(FragmentManager transaction) {
@@ -56,21 +55,6 @@ TracksModalAdapter.TrackModalClickListener {
         return rootView;
     }
 
-    private void bindData(List<Track> tracks) {
-        mTracks = tracks;
-        mTextNumberTracks.setText(String.format(Locale.US, NUMBER_OF_TRACKS, tracks.size()));
-        mAdapter = new TracksModalAdapter();
-        mAdapter.updateData(tracks);
-        mAdapter.setTrackPlaying(mService.getCurrentTrack());
-        mLayoutManager.scrollToPosition(mService.getTracks()
-                .indexOf(mService.getCurrentTrack()));
-        mRecyclerTracks.setAdapter(mAdapter);
-        mAdapter.notifyDataSetChanged();
-        ItemTouchHelper.Callback callback = new CustomItemTouchCallBack(mAdapter);
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
-        itemTouchHelper.attachToRecyclerView(mRecyclerTracks);
-    }
-
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -86,6 +70,20 @@ TracksModalAdapter.TrackModalClickListener {
         mRecyclerTracks.setLayoutManager(mLayoutManager);
     }
 
+    private void bindData(List<Track> tracks) {
+        mTextNumberTracks.setText(String.format(Locale.US, NUMBER_OF_TRACKS, tracks.size()));
+        mAdapter = new TracksModalAdapter();
+        mAdapter.updateData(tracks);
+        mAdapter.setTrackPlaying(mService.getCurrentTrack());
+        mAdapter.setListener(this);
+        mRecyclerTracks.setAdapter(mAdapter);
+        mLayoutManager.scrollToPosition(mService.getTracks()
+                .indexOf(mService.getCurrentTrack()));
+        ItemTouchHelper.Callback callback = new CustomItemTouchCallBack(mAdapter);
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
+        itemTouchHelper.attachToRecyclerView(mRecyclerTracks);
+    }
+
     @Override
     public void onTrackClick(Track track) {
         mService.changeTrack(track);
@@ -93,17 +91,9 @@ TracksModalAdapter.TrackModalClickListener {
 
     @Override
     public void onRemoveTrackClick(Track track) {
-        int position = mTracks.indexOf(track);
-        mTracks.remove(track);
-        mAdapter.notifyItemRemoved(position);
-        mAdapter.notifyItemRangeChanged(position, mTracks.size());
+        mAdapter.removeTrack(track);
         mService.removeTrack(track);
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mService.removeListener(this);
+        mTextNumberTracks.setText(String.format(Locale.US, NUMBER_OF_TRACKS, mAdapter.getItemCount()));
     }
 
     @Override
@@ -117,5 +107,11 @@ TracksModalAdapter.TrackModalClickListener {
                 .indexOf(mService.getCurrentTrack()), OFFSET);
         mAdapter.setTrackPlaying(mService.getCurrentTrack());
         mAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onDestroy() {
+        mService.removeListener(this);
+        super.onDestroy();
     }
 }

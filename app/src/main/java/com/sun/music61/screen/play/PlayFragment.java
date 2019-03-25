@@ -56,12 +56,8 @@ public class PlayFragment extends Fragment implements
     private PlayTrackService mService;
     private Handler mHandlerSyncTime;
 
-    public static PlayFragment newInstance(Track track) {
-        PlayFragment fragment = new PlayFragment();
-        Bundle args = new Bundle();
-        args.putParcelable(ARGUMENT_TRACK, track);
-        fragment.setArguments(args);
-        return fragment;
+    public static PlayFragment newInstance() {
+        return new PlayFragment();
     }
 
     @Override
@@ -163,8 +159,8 @@ public class PlayFragment extends Fragment implements
             mImagePlay.setImageResource(R.drawable.ic_pause_48dp);
         } else {
             mService.pauseTrack();
-            mImageSong.clearAnimation();
             mImagePlay.setImageResource(R.drawable.ic_play_48dp);
+            mImageSong.clearAnimation();
         }
     }
 
