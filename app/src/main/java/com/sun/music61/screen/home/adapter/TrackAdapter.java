@@ -37,6 +37,16 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.ViewHolder> 
         notifyItemRangeChanged(POSITION_START, tracks.size());
     }
 
+    public void add(Track track) {
+        mTracks.add(track);
+        notifyItemInserted(getItemCount() - 1);
+    }
+
+    public void loadMoreData(List<Track> tracks) {
+        for (Track track: tracks)
+            add(track);
+    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int position) {

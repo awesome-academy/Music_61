@@ -38,7 +38,7 @@ public class AllSongPresenter implements AllSongsContract.Presenter {
     }
 
     @Override
-    public void loadAllTracks(String genres, String offset) {
+    public void loadAllTracks(String genres, int offset) {
         mRepository.getTracksByGenres(genres, offset,
                 new RepositoryCallBack() {
                     @Override

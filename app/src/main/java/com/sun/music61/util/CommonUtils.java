@@ -23,6 +23,15 @@ public class CommonUtils {
     public static final String T500 = "t500x500";
     public static final String T300 = "t300x300";
 
+
+    public interface Constants {
+        String TAG_SONG = "songs";
+        String ORDER = "created_at";
+        int LIMIT_BANNER = 5;
+        int LIMIT_DEFAULT = 20;
+        int DEFAULT_OFFSET = 1;
+    }
+
     public interface APIReference {
         String TRACKS = "/tracks";
     }
