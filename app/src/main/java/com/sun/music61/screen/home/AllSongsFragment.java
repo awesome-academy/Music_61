@@ -85,9 +85,6 @@ public class AllSongsFragment extends Fragment implements AllSongsContract.View,
     private void onListenerEvent() {
         mRefreshLayout.post(this::loadData);
         mRefreshLayout.setOnRefreshListener(this::loadData);
-        mSlider.setOnSlideClickListener(position -> {
-            // Code late
-        });
         mRecycler.addOnScrollListener(new OnScrollPagination() {
             @Override
             protected void loadMoreItems() {
@@ -113,6 +110,11 @@ public class AllSongsFragment extends Fragment implements AllSongsContract.View,
     public void onGetBannersSuccess(List<Track> banners) {
         mSlider.setVisibility(View.VISIBLE);
         mSlider.setAdapter(new CustomSliderAdapter(banners));
+        mSlider.setOnSlideClickListener(
+                position ->
+                        MainActivity.replaceFragment((AppCompatActivity) Objects.requireNonNull(getActivity()),
+                                PlayFragment.newInstance(banners.get(position)))
+        );
     }
 
     @Override
@@ -145,6 +147,6 @@ public class AllSongsFragment extends Fragment implements AllSongsContract.View,
 
     @Override
     public void onRecyclerItemClick(Object object, int position) {
-        MainActivity.replaceFragment((AppCompatActivity) Objects.requireNonNull(getActivity()), PlayFragment.newInstance());
+        MainActivity.replaceFragment((AppCompatActivity) Objects.requireNonNull(getActivity()), PlayFragment.newInstance((Track) object));
     }
 }

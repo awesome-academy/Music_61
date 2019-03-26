@@ -42,4 +42,10 @@ public class MainActivity extends AppCompatActivity {
         ActivityUtils.addFragmentToActivity(getSupportFragmentManager(), MainFragment.newInstance(),
                 R.id.contentMain);
     }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        replaceFragment(this, MainFragment.newInstance());
+        return false;
+    }
 }
