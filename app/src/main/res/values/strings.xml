@@ -17,4 +17,5 @@
     <string name="text_all_audio">All audio</string>
     <string name="text_waiting">Please waiting…</string>
     <string name="text_coming_soon">Coming soon!</string>
+    <string name="text_mock_time">00:00</string>
 </resources>

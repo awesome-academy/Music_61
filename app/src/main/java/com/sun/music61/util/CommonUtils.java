@@ -56,6 +56,7 @@ public class CommonUtils {
 
     public interface TitleFragment {
         String ALL = "All";
+        String AUDIO = "Audio";
         String ALTERNATIVE_ROCK = "Rock";
         String AMBIENT = "Ambient";
         String CLASSICAL = "Classical";
