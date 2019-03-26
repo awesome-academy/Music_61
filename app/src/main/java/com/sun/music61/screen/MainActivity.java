@@ -15,6 +15,7 @@ import com.sun.music61.screen.play.PlayFragment;
 import com.sun.music61.screen.service.PlayTrackListener;
 import com.sun.music61.screen.service.PlayTrackService;
 import com.sun.music61.util.ActivityUtils;
+import com.sun.music61.util.PermissionUtils;
 import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
@@ -68,6 +69,18 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         bindService(PlayTrackService.getIntent(this), mConnection, BIND_AUTO_CREATE);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+            @NonNull String[] permissions,
+            @NonNull int[] grantResults) {
+        PermissionUtils.onRequestPermissionResult(this, requestCode, permissions, grantResults);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        PermissionUtils.onActivityResult(this, requestCode);
     }
 
     @Override

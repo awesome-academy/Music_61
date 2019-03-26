@@ -21,6 +21,11 @@
     <string name="text_mock_time">00:00</string>
     <string name="text_number_tracks">Tracks (%d)</string>
     <string name="text_count">00</string>
+    <string name="text_downloading">Downloading</string>
+    <string name="text_change">Change</string>
+    <string name="text_ok">OK</string>
+    <string name="text_req_reason_write_external">We need write external storage permission to save your location to file</string>
+    <string name="text_rejected_msg">We can\'t without storage permission</string>
     <!-- Accessibility button description -->
     <string name="btn_play">Play</string>
     <string name="btn_pause">Pause</string>
