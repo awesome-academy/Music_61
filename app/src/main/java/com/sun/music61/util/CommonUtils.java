@@ -1,17 +1,19 @@
 package com.sun.music61.util;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.widget.ImageView;
 import com.sun.music61.BuildConfig;
 import com.sun.music61.util.helpers.ImageFactory;
 import com.sun.music61.util.listener.FetchImageCallBack;
+import java.util.concurrent.TimeUnit;
 
 public class CommonUtils {
 
     public static final String URL_SERVER = "http://api.soundcloud.com";
+    public static final String AUTHORIZED_SERVER = "?" + CommonUtils.KeyParams.CLIENT_ID + BuildConfig.API_KEY;
     public static final String API_TRACKS = CommonUtils.URL_SERVER
-            + CommonUtils.APIReference.TRACKS + "?"
-            + CommonUtils.KeyParams.CLIENT_ID + BuildConfig.API_KEY + "&";
+            + CommonUtils.APIReference.TRACKS + AUTHORIZED_SERVER + "&";
     /**
      * API SoundCloud return:
      * JPEG, PNG and GIF are  will be encoded to multiple JPEGs in these formats:
@@ -23,6 +25,13 @@ public class CommonUtils {
     public static final String T500 = "t500x500";
     public static final String T300 = "t300x300";
 
+    public interface Number {
+        int ZERO = 0;
+        int TEN = 10;
+        int SIXTY = 60;
+        int HUNDRED = 100;
+        int THOUSAND = 1000;
+    }
 
     public interface Constants {
         String TAG_SONG = "songs";
@@ -90,5 +99,16 @@ public class CommonUtils {
                     }
                 })
                 .build();
+    }
+
+    private static final String TIME_FORMAT = "%02d:%02d";
+
+    @SuppressLint("DefaultLocale")
+    public static String convertTimeInMilisToString(long duration) {
+        return String.format(TIME_FORMAT,
+                TimeUnit.MILLISECONDS.toMinutes(duration) -
+                        TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(duration)),
+                TimeUnit.MILLISECONDS.toSeconds(duration) -
+                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(duration)));
     }
 }
