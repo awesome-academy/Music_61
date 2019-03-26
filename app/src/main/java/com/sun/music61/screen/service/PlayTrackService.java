@@ -7,7 +7,10 @@ import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.IBinder;
 import com.sun.music61.data.model.Track;
+import com.sun.music61.media.Loop;
 import com.sun.music61.media.MediaPlayerManager;
+import com.sun.music61.media.Shuffle;
+import com.sun.music61.media.State;
 import com.sun.music61.util.notification.MusicNotificationHelper;
 import com.sun.music61.media.State;
 import java.util.ArrayList;
@@ -16,7 +19,6 @@ import java.util.List;
 import static com.sun.music61.util.CommonUtils.Action;
 
 public class PlayTrackService extends Service implements
-        BasePlayTrackService,
         MediaPlayer.OnErrorListener,
         MediaPlayer.OnCompletionListener,
         MediaPlayer.OnPreparedListener  {
@@ -57,7 +59,11 @@ public class PlayTrackService extends Service implements
                 actionPlayAndPause();
                 break;
             case Action.ACTION_NEXT:
+                nextTrack();
+                break;
             case Action.ACTION_PREVIOUS:
+                previousTrack();
+                break;
             case Action.ACTION_FAVORITE:
             default:
                 // Code late
@@ -77,6 +83,12 @@ public class PlayTrackService extends Service implements
         }
     }
 
+    private void notifySettingChange() {
+        for (PlayTrackListener listener : mListeners) {
+            listener.onSettingChange();
+        }
+    }
+
     private void notifyTrackChange() {
         notifyStateChange();
         for (PlayTrackListener listener : mListeners) {
@@ -91,7 +103,23 @@ public class PlayTrackService extends Service implements
 
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
-        changeTrack(getCurrentTrack());
+        switch (mPlayerManager.getLoop()) {
+            case Loop.ONE:
+                changeTrack(getCurrentTrack());
+                break;
+            case Loop.ALL:
+                nextTrack();
+                break;
+            case Loop.NONE:
+                if (mPlayerManager.isLastTracks(getCurrentTrack())) {
+                    stopTrack();
+                } else {
+                    nextTrack();
+                }
+                break;
+            default:
+                break;
+        }
     }
 
     @Override
@@ -104,60 +132,86 @@ public class PlayTrackService extends Service implements
         startTrack();
     }
 
-    @Override
     public void startTrack() {
         mPlayerManager.start();
         updateNotification();
     }
 
-    @Override
     public void changeTrack(Track track) {
         mPlayerManager.change(track);
         notifyTrackChange();
     }
 
-    @Override
     public void pauseTrack() {
         mPlayerManager.pause();
         updateNotification();
     }
 
-    @Override
+    public void previousTrack() {
+        mPlayerManager.previous();
+        updateNotification();
+        notifyTrackChange();
+    }
+
+    public void nextTrack() {
+        mPlayerManager.next();
+        updateNotification();
+        notifyTrackChange();
+    }
+
     public void stopTrack() {
         mPlayerManager.stop();
     }
 
-    @Override
     public void seek(int milliseconds) {
         mPlayerManager.seek(milliseconds);
     }
 
-    @Override
     public long getDuration() {
         return mPlayerManager.getDuration();
     }
 
-    @Override
     public long getCurrentDuration() {
         return mPlayerManager.getCurrentDuration();
     }
 
-    @Override
     public int getState() {
         return mPlayerManager.getState();
     }
 
-    @Override
     public void setTracks(List<Track> tracks) {
         mPlayerManager.setTracks(tracks);
     }
 
-    @Override
+    public void shuffleTracks() {
+        mPlayerManager.shuffleTracks();
+        notifySettingChange();
+    }
+
+    public void unShuffleTracks() {
+        mPlayerManager.unShuffleTracks();
+        notifySettingChange();
+    }
+
+    @Shuffle
+    public int getShuffle() {
+        return mPlayerManager.getShuffle();
+    }
+
+    public void loopTracks(@Loop int loop) {
+        mPlayerManager.setLoop(loop);
+        notifySettingChange();
+    }
+
+    @Loop
+    public int getLoop() {
+        return mPlayerManager.getLoop();
+    }
+
     public List<Track> getTracks() {
         return mPlayerManager.getTracks();
     }
 
-    @Override
     public void removeTrack(Track track) {
         mPlayerManager.removeTrack(track);
     }

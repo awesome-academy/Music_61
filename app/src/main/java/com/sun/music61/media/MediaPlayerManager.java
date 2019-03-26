@@ -1,32 +1,25 @@
 package com.sun.music61.media;
 
-import android.content.Context;
-import android.media.MediaPlayer;
 import android.net.Uri;
-import android.util.Log;
 import com.sun.music61.data.model.Track;
 import com.sun.music61.screen.service.PlayTrackService;
 import com.sun.music61.util.CommonUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
-public class MediaPlayerManager implements Control {
-
-    private static final String TAG = MediaPlayer.class.getName();
-    private static MediaPlayerManager sInstance;
+public class MediaPlayerManager extends BaseMedia {
 
     private PlayTrackService mService;
     private Track mCurrentTrack;
     private List<Track> mTracks;
-    private MediaPlayer mMediaPlayer;
-    @State
-    private int mState;
+
+    private static MediaPlayerManager sInstance;
 
     private MediaPlayerManager(PlayTrackService service) {
+        super();
         mService = service;
-        mState = State.PAUSE;
-        mMediaPlayer = new MediaPlayer();
         mTracks = new ArrayList<>();
     }
 
@@ -36,39 +29,9 @@ public class MediaPlayerManager implements Control {
         return sInstance;
     }
 
-    public void setTracks(List<Track> tracks) {
-        if (tracks != null) {
-            mTracks.clear();
-            mTracks.addAll(tracks);
-        }
-    }
-
-    public List<Track> getTracks() {
-        return mTracks;
-    }
-
-    public void removeTrack(Track track) {
-        if (track != null) mTracks.remove(track);
-    }
-
-    public Track getCurrentTrack() {
-        return mCurrentTrack;
-    }
-
-    public void setCurrentTrack(Track currentTrack) {
-        mCurrentTrack = currentTrack;
-    }
-
-    public MediaPlayer getMediaPlayer() {
-        return mMediaPlayer;
-    }
-
-    public void setMediaPlayer(MediaPlayer mediaPlayer) {
-        mMediaPlayer = mediaPlayer;
-    }
-
     @Override
-    public void create(Track track) {
+    public  <T> void create(T obj) {
+        Track track = (Track) obj;
         mMediaPlayer.reset();
         try {
             mMediaPlayer.setDataSource(mService, Uri.parse(track.getStreamUrl() + CommonUtils.AUTHORIZED_SERVER));
@@ -88,9 +51,9 @@ public class MediaPlayerManager implements Control {
     }
 
     @Override
-    public void change(Track track) {
-        mCurrentTrack = track;
-        create(track);
+    public <T> void change(T obj) {
+        mCurrentTrack = (Track) obj;
+        create(obj);
     }
 
     @Override
@@ -100,44 +63,74 @@ public class MediaPlayerManager implements Control {
     }
 
     @Override
+    public void previous() {
+        change(getPreviousTrack());
+    }
+
+    @Override
+    public void next() {
+        if (getShuffle() == Shuffle.OFF) {
+            change(getNextTrack());
+        } else {
+            change(getRandomTrack());
+        }
+    }
+
+    @Override
     public void stop() {
         mMediaPlayer.stop();
         setState(State.PAUSE);
     }
 
-    @Override
-    public void release() {
-        mMediaPlayer.release();
+    private Track getPreviousTrack() {
+        int position = mTracks.indexOf(mCurrentTrack);
+        if (position == 0) return mTracks.get(mTracks.size() - 1);
+        return mTracks.get(position - 1);
     }
 
-    @Override
-    public void reset() {
-        mMediaPlayer.reset();
+    private Track getNextTrack() {
+        int position = mTracks.indexOf(mCurrentTrack);
+        if (position == mTracks.size() - 1) return mTracks.get(0);
+        return mTracks.get(position + 1);
     }
 
-    @Override
-    public void seek(int milliseconds) {
-        mMediaPlayer.seekTo(milliseconds);
+    private Track getRandomTrack() {
+        Random random = new Random();
+        return mTracks.get(random.nextInt(mTracks.size()));
     }
 
-    @Override
-    public long getDuration() {
-        return mMediaPlayer.getDuration();
+    public void setCurrentTrack(Track track) {
+        mCurrentTrack = track;
     }
 
-    @Override
-    public long getCurrentDuration() {
-        return mMediaPlayer.getCurrentPosition();
+    public void setTracks(List<Track> tracks) {
+        if (tracks != null) {
+            mTracks.clear();
+            mTracks.addAll(tracks);
+        }
     }
 
-    @Override
-    public void setState(@State int state) {
-        mState = state;
+    public List<Track> getTracks() {
+        return mTracks;
     }
 
-    @State
-    @Override
-    public int getState() {
-        return mState;
+    public void addTrack(Track track) {
+        mTracks.add(track);
+    }
+
+    public void addTracks(List<Track> tracks) {
+        mTracks.addAll(tracks);
+    }
+
+    public void removeTrack(Track track) {
+        if (track != null) mTracks.remove(track);
+    }
+
+    public Track getCurrentTrack() {
+        return mCurrentTrack;
+    }
+
+    public boolean isLastTracks(Track currentTrack) {
+        return mTracks.indexOf(currentTrack) == mTracks.size() - 1;
     }
 }

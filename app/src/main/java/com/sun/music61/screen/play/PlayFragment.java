@@ -7,7 +7,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,6 +20,8 @@ import android.widget.TextView;
 import com.flaviofaria.kenburnsview.KenBurnsView;
 import com.sun.music61.R;
 import com.sun.music61.data.model.Track;
+import com.sun.music61.media.Loop;
+import com.sun.music61.media.Shuffle;
 import com.sun.music61.media.State;
 import com.sun.music61.screen.MainActivity;
 import com.sun.music61.screen.service.PlayTrackListener;
@@ -34,7 +35,8 @@ import me.tankery.lib.circularseekbar.CircularSeekBar;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class PlayFragment extends Fragment implements
-        PlayContract.View, PlayTrackListener, CircularSeekBar.OnCircularSeekBarChangeListener {
+        PlayContract.View, PlayTrackListener, CircularSeekBar.OnCircularSeekBarChangeListener,
+        TrackControlListener {
 
     private static final String ARGUMENT_TRACK = "ARGUMENT_TRACK";
     private static final int DEFAULT_PROGRESS = 0;
@@ -45,7 +47,7 @@ public class PlayFragment extends Fragment implements
     private CircularSeekBar mSeekBarProccess;
     private CircleImageView mImageSong;
     private TextView mTextDuration;
-    private ImageView mButtonSuffle;
+    private ImageView mButtonShuffle;
     private ImageView mButtonPrev;
     private ImageView mButtonNext;
     private ImageView mButtonPlay;
@@ -97,7 +99,7 @@ public class PlayFragment extends Fragment implements
         mSeekBarProccess = rootView.findViewById(R.id.seekBarProcess);
         mImageSong = rootView.findViewById(R.id.imageSongCircle);
         mTextDuration = rootView.findViewById(R.id.textDuration);
-        mButtonSuffle = rootView.findViewById(R.id.buttonShuffle);
+        mButtonShuffle = rootView.findViewById(R.id.buttonShuffle);
         mButtonPrev = rootView.findViewById(R.id.buttonPrev);
         mButtonNext = rootView.findViewById(R.id.buttonNext);
         mButtonPlay = rootView.findViewById(R.id.buttonPlay);
@@ -112,17 +114,15 @@ public class PlayFragment extends Fragment implements
         mSeekBarProccess.setProgress(DEFAULT_PROGRESS);
         CommonUtils.loadImageFromUrl(mImageBackground, track.getArtworkUrl(), CommonUtils.T500);
         CommonUtils.loadImageFromUrl(mImageSong, track.getArtworkUrl(), CommonUtils.T300);
-        if (mService.getState() == State.PAUSE) {
-            mImagePlay.setImageResource(R.drawable.ic_play_48dp);
-            mImageSong.clearAnimation();
-        } else {
-            mImageSong.startAnimation(mAnimation);
-            mImagePlay.setImageResource(R.drawable.ic_pause_48dp);
-        }
+        onSettingChange();
     }
 
     private void onListenerEvent() {
         mButtonPlay.setOnClickListener(view -> play());
+        mButtonPrev.setOnClickListener(view -> prev());
+        mButtonNext.setOnClickListener(view -> next());
+        mButtonShuffle.setOnClickListener(view -> shuffle());
+        mButtonRepeat.setOnClickListener(view -> loop());
         mSeekBarProccess.setOnSeekBarChangeListener(this);
     }
 
@@ -152,15 +152,57 @@ public class PlayFragment extends Fragment implements
 
     }
 
-    private void play() {
-        if (mService.getState() == State.PAUSE) {
-            mService.startTrack();
-            mImageSong.startAnimation(mAnimation);
-            mImagePlay.setImageResource(R.drawable.ic_pause_48dp);
-        } else {
-            mService.pauseTrack();
-            mImagePlay.setImageResource(R.drawable.ic_play_48dp);
-            mImageSong.clearAnimation();
+    @Override
+    public void play() {
+        mService.actionPlayAndPause();
+    }
+
+    @Override
+    public void prev() {
+        mService.previousTrack();
+    }
+
+    @Override
+    public void next() {
+        mService.nextTrack();
+    }
+
+    @Override
+    public void shuffle() {
+        if (mService.getShuffle() == Shuffle.OFF) mService.shuffleTracks();
+        else mService.unShuffleTracks();
+    }
+
+    private void updateShuffleIcon() {
+        switch (mService.getShuffle()) {
+            case Shuffle.OFF:
+                mButtonShuffle.setColorFilter(R.color.buttonColorGrey);
+                break;
+            case Shuffle.ON:
+                mButtonShuffle.setColorFilter(android.R.color.white);
+                break;
+        }
+    }
+
+    @Override
+    public void loop() {
+        if (mService.getLoop() == Loop.NONE) mService.loopTracks(Loop.ALL);
+        else if (mService.getLoop() == Loop.ALL) mService.loopTracks(Loop.ONE);
+        else mService.loopTracks(Loop.NONE);
+    }
+
+    private void updateLoopIcon() {
+        mButtonRepeat.setImageDrawable(getResources().getDrawable(R.drawable.ic_repeat_48dp_scaled));
+        switch (mService.getLoop()) {
+            case Loop.ALL:
+                mButtonRepeat.setColorFilter(android.R.color.white);
+                break;
+            case Loop.NONE:
+                mButtonRepeat.setColorFilter(R.color.buttonColorGrey);
+                break;
+            case Loop.ONE:
+                mButtonRepeat.setImageDrawable(getResources().getDrawable(R.drawable.ic_repeat_one_48dp_scaled));
+                break;
         }
     }
 
@@ -216,6 +258,12 @@ public class PlayFragment extends Fragment implements
             mImagePlay.setImageResource(R.drawable.ic_pause_48dp);
             mImageSong.startAnimation(mAnimation);
         }
+    }
+
+    @Override
+    public void onSettingChange() {
+        updateLoopIcon();
+        updateShuffleIcon();
     }
 
     @Override

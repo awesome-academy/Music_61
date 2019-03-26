@@ -102,6 +102,11 @@ public class MainActivity extends AppCompatActivity implements PlayTrackListener
     }
 
     @Override
+    public void onSettingChange() {
+
+    }
+
+    @Override
     public void onTrackChanged(Track track) {
         // Code late
     }
