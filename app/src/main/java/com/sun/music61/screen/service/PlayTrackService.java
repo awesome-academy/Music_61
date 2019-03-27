@@ -6,10 +6,9 @@ import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.IBinder;
-import android.widget.Toast;
-import com.sun.music61.R;
 import com.sun.music61.data.model.Track;
 import com.sun.music61.media.MediaPlayerManager;
+import com.sun.music61.util.notification.MusicNotificationHelper;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +21,7 @@ public class PlayTrackService extends Service implements
     private IBinder mBinder;
     private MediaPlayerManager mPlayerManager;
     private List<PlayTrackListener> mListeners;
+    private MusicNotificationHelper mNotificationHelper;
 
     @Override
     public void onCreate() {
@@ -29,6 +29,7 @@ public class PlayTrackService extends Service implements
         mBinder = new TrackBinder();
         mPlayerManager = MediaPlayerManager.getInstance(this);
         mListeners = new ArrayList<>();
+        mNotificationHelper = new MusicNotificationHelper(this);
     }
 
     public static Intent getIntent(Context context) {
@@ -77,18 +78,13 @@ public class PlayTrackService extends Service implements
 
     @Override
     public boolean onError(MediaPlayer mediaPlayer, int i, int i1) {
-        Toast.makeText(this, getString(R.string.notify_play_track_error), Toast.LENGTH_SHORT).show();
         return true;
     }
 
     @Override
-    public void createTrack(Track track) {
-        mPlayerManager.create(track);
-    }
-
-    @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
-        // Handle notification late
+        mNotificationHelper.createBuilder();
+        mNotificationHelper.updateTrack(getCurrentTrack());
         startTrack();
     }
 
@@ -96,12 +92,11 @@ public class PlayTrackService extends Service implements
     public void startTrack() {
         mPlayerManager.start();
         notifyStateChange();
-        // Notification late
+        // Notification late update icon
     }
 
     @Override
     public void changeTrack(Track track) {
-        // Code late
         mPlayerManager.change(track);
         notifyTrackChange();
     }
@@ -109,8 +104,8 @@ public class PlayTrackService extends Service implements
     @Override
     public void pauseTrack() {
         mPlayerManager.pause();
-        // Notification late
         notifyStateChange();
+        // Notification late update icon
     }
 
     @Override
