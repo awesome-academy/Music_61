@@ -147,6 +147,21 @@ public class PlayTrackService extends Service implements
         return mPlayerManager.getState();
     }
 
+    @Override
+    public void setTracks(List<Track> tracks) {
+        mPlayerManager.setTracks(tracks);
+    }
+
+    @Override
+    public List<Track> getTracks() {
+        return mPlayerManager.getTracks();
+    }
+
+    @Override
+    public void removeTrack(Track track) {
+        mPlayerManager.removeTrack(track);
+    }
+
     public Track getCurrentTrack() {
         return mPlayerManager.getCurrentTrack();
     }
