@@ -1,12 +1,12 @@
 package com.sun.music61.util.notification;
 
+import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
-import android.util.Log;
 import com.sun.music61.R;
 import com.sun.music61.data.model.Track;
 import com.sun.music61.media.State;
@@ -18,12 +18,13 @@ import com.sun.music61.util.listener.FetchImageCallBack;
 
 import static android.support.v4.app.NotificationCompat.VISIBILITY_PUBLIC;
 import static android.support.v4.media.app.NotificationCompat.MediaStyle;
+import static com.sun.music61.util.CommonUtils.Action;
 
 public class MusicNotificationHelper extends NotificationHelper {
 
-    private static final String TAG = MusicNotificationHelper.class.getName();
-    protected static final int REQUEST_CODE = 10;
-    protected static final int LARGE_ICON_SIZE = 100;
+    private static final int REQUEST_CODE = 1201;
+    private static final int LARGE_ICON_SIZE = 100;
+    private static final int FLAG = 0;
     private static final int ACTION_PREV = 0;
     private static final int ACTION_PLAY = 1;
     private static final int ACTION_NEXT = 2;
@@ -46,22 +47,22 @@ public class MusicNotificationHelper extends NotificationHelper {
                 .addAction(
                         R.drawable.ic_skip_previous_24dp,
                         mService.getString(R.string.btn_prev),
-                        pendingIntentOpenPlayActivity()
+                        pendingIntentAction(Action.ACTION_PREVIOUS)
                 )
                 .addAction(
-                        R.drawable.ic_pause_24dp,
-                        mService.getString(R.string.btn_pause),
-                        pendingIntentOpenPlayActivity()
+                        mService.getState() == State.PLAY ? R.drawable.ic_pause_24dp : R.drawable.ic_play_24dp,
+                        mService.getState() == State.PLAY ? mService.getString(R.string.btn_pause) : mService.getString(R.string.btn_play),
+                        pendingIntentAction(Action.ACTION_PLAY_AND_PAUSE)
                 )
                 .addAction(
                         R.drawable.ic_skip_next_24dp,
                         mService.getString(R.string.btn_skip),
-                        pendingIntentOpenPlayActivity()
+                        pendingIntentAction(Action.ACTION_NEXT)
                 )
                 .addAction(
                         R.drawable.ic_favorite_24dp_scaled,
                         mService.getString(R.string.fav_add),
-                        pendingIntentOpenPlayActivity()
+                        pendingIntentAction(Action.ACTION_FAVORITE)
                 )
                 .setShowWhen(false)
                 .setVisibility(VISIBILITY_PUBLIC);
@@ -74,13 +75,28 @@ public class MusicNotificationHelper extends NotificationHelper {
         return stackBuilder.getPendingIntent(REQUEST_CODE, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
+    private PendingIntent pendingIntentAction(String action) {
+        Intent prevIntent = new Intent(mService, PlayTrackService.class);
+        prevIntent.setAction(action);
+        return PendingIntent.getService(mService, REQUEST_CODE, prevIntent, FLAG);
+    }
+
     public void updateTrack(Track track) {
         mBuilder.setContentTitle(track.getTitle())
                 .setContentText(track.getUser().getUsername())
                 .setLargeIcon(BitmapFactory.decodeResource(mService.getResources(), R.mipmap.ic_launcher));
-        if (mService.getState() == State.PLAY)
-            mService.startForeground(NOTIFICATION_ID, mBuilder.build());
         loadImageSong(track);
+    }
+
+    public void updateStateNotification() {
+        createBuilder();
+        updateTrack(mService.getCurrentTrack());
+        if (mService.getState() == State.PLAY) {
+            startForeground(mBuilder.build());
+        } else {
+            mBuilder.setOngoing(false);
+            mService.stopForeground(true);
+        }
     }
 
     private void loadImageSong(Track track) {
@@ -92,14 +108,25 @@ public class MusicNotificationHelper extends NotificationHelper {
                     @Override
                     public void onCompleted(Bitmap bitmap) {
                         mBuilder.setLargeIcon(bitmap);
-                        MusicNotificationHelper.this.notify(NOTIFICATION_ID, mBuilder.build());
+                        MusicNotificationHelper.this.notify(mBuilder.build());
                     }
 
                     @Override
-                    public void onError(Exception ex) {
-                        Log.e(TAG, "onError: ", ex);
+                    public void onFailure() {
                     }
                 })
                 .build();
+    }
+
+    public void startForeground(Notification notification) {
+            mService.startForeground(NOTIFICATION_ID, notification);
+    }
+
+    public void notify(Notification notification) {
+        super.notify(NOTIFICATION_ID, notification);
+    }
+
+    public void cancel() {
+        super.cancel(NOTIFICATION_ID);
     }
 }

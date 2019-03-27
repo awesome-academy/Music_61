@@ -12,7 +12,7 @@ import com.sun.music61.screen.service.PlayTrackService;
 public class NotificationHelper {
 
     private static final String TAG = NotificationHelper.class.getName();
-    public static final String NOTIFICATION_CHANNEL_ID = "sun_notify_channel";
+    protected static final String NOTIFICATION_CHANNEL_ID = "sun_notify_channel";
     protected static final int NOTIFICATION_ID = 160;
 
     protected NotificationManager mNotificationManager;
