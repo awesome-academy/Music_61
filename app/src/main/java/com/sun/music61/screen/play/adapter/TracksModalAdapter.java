@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import com.sun.music61.R;
 import com.sun.music61.data.model.Track;
+import com.sun.music61.util.CommonUtils;
 import com.sun.music61.util.listener.ItemTouchAdapterListener;
 import com.sun.music61.util.listener.ItemTouchViewHolderListener;
 import java.util.ArrayList;
@@ -56,6 +57,13 @@ public class TracksModalAdapter extends RecyclerView.Adapter<TracksModalAdapter.
             add(track);
     }
 
+    public void removeTrack(Track track) {
+        int position = mTracks.indexOf(track);
+        mTracks.remove(track);
+        notifyItemRemoved(position);
+        notifyItemRangeChanged(position, mTracks.size());
+    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int position) {
@@ -65,6 +73,8 @@ public class TracksModalAdapter extends RecyclerView.Adapter<TracksModalAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int position) {
+        boolean isPlaying = mTracks.get(position).equals(mTrackPlaying);
+        viewHolder.hoverPlaying(isPlaying);
         viewHolder.bindData(mTracks.get(position));
     }
 
@@ -102,7 +112,7 @@ public class TracksModalAdapter extends RecyclerView.Adapter<TracksModalAdapter.
             mTextCount = itemView.findViewById(R.id.textCount);
             mTextSong = itemView.findViewById(R.id.textSong);
             mTextAuthor = itemView.findViewById(R.id.textAuthor);
-            mButtonRemove = itemView.findViewById(R.id.buttonPlay);
+            mButtonRemove = itemView.findViewById(R.id.buttonRemove);
             mButtonRemove.setOnClickListener(this);
             itemView.setOnClickListener(this);
         }
@@ -118,14 +128,16 @@ public class TracksModalAdapter extends RecyclerView.Adapter<TracksModalAdapter.
             mTextCount.setTextColor(resources.getColor(R.color.textHover));
             mTextSong.setTextColor(resources.getColor(R.color.textHover));
             mTextAuthor.setTextColor(resources.getColor(R.color.textHover));
+            mButtonRemove.setImageResource(R.drawable.ic_surround_sound_white_24dp);
             mButtonRemove.setColorFilter(resources.getColor(R.color.textHover));
         }
 
         private void styleNotPlaying() {
             Resources resources = itemView.getResources();
-            mTextCount.setTextColor(resources.getColor(R.color.textSongWhite));
+            mTextCount.setTextColor(resources.getColor(android.R.color.black));
             mTextSong.setTextColor(resources.getColor(R.color.textSongWhite));
             mTextAuthor.setTextColor(resources.getColor(R.color.textAuthorGrey));
+            mButtonRemove.setImageResource(R.drawable.ic_remove_circle_outline_24dp);
             mButtonRemove.setColorFilter(resources.getColor(R.color.buttonColorGrey));
         }
 
@@ -136,7 +148,7 @@ public class TracksModalAdapter extends RecyclerView.Adapter<TracksModalAdapter.
             loadAnimation(mTextSong, R.anim.fade_scale_animation);
             loadAnimation(mTextAuthor, R.anim.fade_scale_animation);
             loadAnimation(mButtonRemove, R.anim.fade_scale_animation);
-            mTextCount.setText(String.format(Locale.US, "%d", getAdapterPosition()));
+            mTextCount.setText(String.format(Locale.US, "%d", getAdapterPosition() + CommonUtils.Number.ONE));
             mTextSong.setText(track.getTitle());
             mTextAuthor.setText(track.getUser().getUsername());
         }

@@ -42,6 +42,7 @@ public class GenresFragment extends Fragment implements GenresContract.View,
     private AlertDialog mDialogWaiting;
     private int mOffset;
     private String mGenres;
+    private List<Track> mTracks;
     private PlayTrackService mService;
 
     public static GenresFragment newInstance(String genres) {
@@ -115,6 +116,7 @@ public class GenresFragment extends Fragment implements GenresContract.View,
 
     @Override
     public void onGetTracksSuccess(List<Track> tracks) {
+        mTracks = tracks;
         if (mOffset == ZERO) {
             mAdapter.updateData(tracks);
             if (mSwipeLayout.isRefreshing())
@@ -138,15 +140,16 @@ public class GenresFragment extends Fragment implements GenresContract.View,
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         mService.removeListener(this);
+        super.onDestroy();
     }
 
     @Override
     public void onRecyclerItemClick(Object object, int position) {
+        mService.setTracks(mTracks);
         mService.changeTrack((Track) object);
         MainActivity.replaceFragment((AppCompatActivity) Objects.requireNonNull(getActivity()),
-                PlayFragment.newInstance((Track) object));
+                PlayFragment.newInstance());
     }
 
     @Override
