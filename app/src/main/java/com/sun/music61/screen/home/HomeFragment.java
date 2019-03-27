@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import com.sun.music61.R;
+import com.sun.music61.custom.CubeInRotationTransformation;
 import com.sun.music61.screen.home.adapter.HomePagerAdapter;
 import java.util.Objects;
 
@@ -38,6 +39,8 @@ public class HomeFragment extends Fragment {
     private void initView(View rootView) {
         ViewPager viewPager = rootView.findViewById(R.id.viewPager);
         viewPager.setAdapter(new HomePagerAdapter(getChildFragmentManager()));
+        CubeInRotationTransformation transformation = new CubeInRotationTransformation();
+        viewPager.setPageTransformer(true, transformation);
         TabLayout tabLayout = rootView.findViewById(R.id.tabLayout);
         tabLayout.setupWithViewPager(viewPager);
     }

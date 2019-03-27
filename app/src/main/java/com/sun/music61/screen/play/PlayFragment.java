@@ -10,6 +10,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.flaviofaria.kenburnsview.KenBurnsView;
@@ -31,8 +33,8 @@ public class PlayFragment extends Fragment implements
         PlayContract.View, PlayTrackListener, CircularSeekBar.OnCircularSeekBarChangeListener {
 
     private static final String ARGUMENT_TRACK = "ARGUMENT_TRACK";
-    private static final long TIME_DELAY = 1000;
     private static final int DEFAULT_PROGRESS = 0;
+    private static final long TIME_DELAY = 1000;
 
     private Toolbar mToolbar;
     private KenBurnsView mImageBackground;
@@ -45,6 +47,7 @@ public class PlayFragment extends Fragment implements
     private ImageView mButtonPlay;
     private ImageView mButtonRepeat;
     private ImageView mImagePlay;
+    private Animation mAnimation;
     private PlayContract.Presenter mPresenter;
     private PlayTrackService mService;
     private Handler mHandlerSyncTime;
@@ -94,6 +97,7 @@ public class PlayFragment extends Fragment implements
         mButtonPlay = rootView.findViewById(R.id.buttonPlay);
         mButtonRepeat = rootView.findViewById(R.id.buttonRepeat);
         mImagePlay = rootView.findViewById(R.id.imagePlay);
+        mAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.rotate_image_song);
     }
 
     private void fetchDataTrack(Track track) {
@@ -103,11 +107,10 @@ public class PlayFragment extends Fragment implements
         CommonUtils.loadImageFromUrl(mImageBackground, track.getArtworkUrl(), CommonUtils.T500);
         CommonUtils.loadImageFromUrl(mImageSong, track.getArtworkUrl(), CommonUtils.T300);
         if (mService.getState() == State.PAUSE) {
-            // Start animation code late
-            // Changing button image to play Button
             mImagePlay.setImageResource(R.drawable.ic_play_48dp);
+            mImageSong.clearAnimation();
         } else {
-            // Pause animation code late
+            mImageSong.startAnimation(mAnimation);
             mImagePlay.setImageResource(R.drawable.ic_pause_48dp);
         }
     }
@@ -146,12 +149,12 @@ public class PlayFragment extends Fragment implements
     private void play() {
         if (mService.getState() == State.PAUSE) {
             mService.startTrack();
+            mImageSong.startAnimation(mAnimation);
             mImagePlay.setImageResource(R.drawable.ic_pause_48dp);
-            // Animation code late
         } else {
             mService.pauseTrack();
+            mImageSong.clearAnimation();
             mImagePlay.setImageResource(R.drawable.ic_play_48dp);
-            // Animation code late
         }
     }
 
@@ -183,12 +186,11 @@ public class PlayFragment extends Fragment implements
     @Override
     public void onState(int state) {
         if (mService.getState() == State.PAUSE) {
-            // Start animation code late
-            // Changing button image to play Button
             mImagePlay.setImageResource(R.drawable.ic_play_48dp);
+            mImageSong.clearAnimation();
         } else {
-            // Pause animation code late
             mImagePlay.setImageResource(R.drawable.ic_pause_48dp);
+            mImageSong.startAnimation(mAnimation);
         }
     }
 

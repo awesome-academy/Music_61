@@ -7,11 +7,11 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import com.sun.music61.R;
 import com.sun.music61.data.model.Track;
 import com.sun.music61.screen.MainActivity;
@@ -81,6 +81,7 @@ public class GenresFragment extends Fragment implements GenresContract.View,
         mAdapter = new TrackAdapter(R.layout.item_track_list);
         mAdapter.setOnItemClickListener(this);
         mRecyclerGenres.setAdapter(mAdapter);
+        mRecyclerGenres.setLayoutAnimation(AnimationUtils.loadLayoutAnimation(getContext(), R.anim.layout_animation_fall_down));
         mSwipeLayout = rootView.findViewById(R.id.swipeLayout);
         mSwipeLayout.setColorSchemeResources(R.color.colorPrimary, android.R.color.holo_green_dark,
                 android.R.color.holo_orange_dark, android.R.color.holo_blue_dark);
@@ -116,7 +117,8 @@ public class GenresFragment extends Fragment implements GenresContract.View,
     public void onGetTracksSuccess(List<Track> tracks) {
         if (mOffset == ZERO) {
             mAdapter.updateData(tracks);
-            mSwipeLayout.setRefreshing(false);
+            if (mSwipeLayout.isRefreshing())
+                mSwipeLayout.setRefreshing(false);
         } else {
             mAdapter.loadMoreData(tracks);
         }
