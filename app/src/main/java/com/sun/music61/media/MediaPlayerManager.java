@@ -5,6 +5,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.util.Log;
 import com.sun.music61.data.model.Track;
+import com.sun.music61.screen.service.PlayTrackService;
 import com.sun.music61.util.CommonUtils;
 import java.io.IOException;
 
@@ -13,21 +14,21 @@ public class MediaPlayerManager implements Control {
     private static final String TAG = MediaPlayer.class.getName();
     private static MediaPlayerManager sInstance;
 
-    private Context mContext;
+    private PlayTrackService mService;
     private Track mCurrentTrack;
     private MediaPlayer mMediaPlayer;
     @State
     private int mState;
 
-    private MediaPlayerManager(Context context) {
-        mContext = context;
+    private MediaPlayerManager(PlayTrackService service) {
+        mService = service;
         mState = State.PAUSE;
         mMediaPlayer = new MediaPlayer();
     }
 
-    public static MediaPlayerManager getInstance(Context context) {
+    public static MediaPlayerManager getInstance(PlayTrackService service) {
         if (sInstance == null)
-            sInstance = new MediaPlayerManager(context);
+            sInstance = new MediaPlayerManager(service);
         return sInstance;
     }
 
@@ -51,7 +52,7 @@ public class MediaPlayerManager implements Control {
     public void create(Track track) {
         mMediaPlayer.reset();
         try {
-            mMediaPlayer.setDataSource(mContext, Uri.parse(track.getStreamUrl() + CommonUtils.AUTHORIZED_SERVER));
+            mMediaPlayer.setDataSource(mService, Uri.parse(track.getStreamUrl() + CommonUtils.AUTHORIZED_SERVER));
             mMediaPlayer.prepare();
         } catch (IOException e) {
             // Do nothing

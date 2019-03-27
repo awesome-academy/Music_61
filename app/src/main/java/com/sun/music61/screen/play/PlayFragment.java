@@ -1,6 +1,7 @@
 package com.sun.music61.screen.play;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -14,17 +15,24 @@ import android.widget.TextView;
 import com.flaviofaria.kenburnsview.KenBurnsView;
 import com.sun.music61.R;
 import com.sun.music61.data.model.Track;
-import com.sun.music61.media.MediaPlayerManager;
 import com.sun.music61.media.State;
+import com.sun.music61.screen.MainActivity;
+import com.sun.music61.screen.service.PlayTrackListener;
+import com.sun.music61.screen.service.PlayTrackService;
 import com.sun.music61.util.CommonUtils;
+import com.sun.music61.util.RepositoryInstance;
 import de.hdodenhof.circleimageview.CircleImageView;
 import java.util.Objects;
 import me.tankery.lib.circularseekbar.CircularSeekBar;
 
-public class PlayFragment extends Fragment
-        implements CircularSeekBar.OnCircularSeekBarChangeListener {
+import static com.google.common.base.Preconditions.checkNotNull;
+
+public class PlayFragment extends Fragment implements
+        PlayContract.View, PlayTrackListener, CircularSeekBar.OnCircularSeekBarChangeListener {
 
     private static final String ARGUMENT_TRACK = "ARGUMENT_TRACK";
+    private static final long TIME_DELAY = 1000;
+    private static final int DEFAULT_PROGRESS = 0;
 
     private Toolbar mToolbar;
     private KenBurnsView mImageBackground;
@@ -37,8 +45,9 @@ public class PlayFragment extends Fragment
     private ImageView mButtonPlay;
     private ImageView mButtonRepeat;
     private ImageView mImagePlay;
-    private Track mTrack;
-    private MediaPlayerManager mPlayerManager;
+    private PlayContract.Presenter mPresenter;
+    private PlayTrackService mService;
+    private Handler mHandlerSyncTime;
 
     public static PlayFragment newInstance(Track track) {
         PlayFragment fragment = new PlayFragment();
@@ -51,8 +60,6 @@ public class PlayFragment extends Fragment
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        // Get Data From Activity
-        mTrack = Objects.requireNonNull(getArguments()).getParcelable(ARGUMENT_TRACK);
         View rootView = inflater.inflate(R.layout.play_fragment, container, false);
         initView(rootView);
         onListenerEvent();
@@ -60,17 +67,13 @@ public class PlayFragment extends Fragment
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        fetchDataTrack(mTrack);
-        // Playing
-        onPlayMusic();
-    }
-
-    private void onPlayMusic() {
-        mPlayerManager = MediaPlayerManager.getInstance(getContext());
-        mPlayerManager.create(mTrack);
-        mPlayerManager.start();
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        mPresenter = new PlayPresenter(RepositoryInstance.getInstanceTrackRepository(), this);
+        mService = ((MainActivity) Objects.requireNonNull(getActivity())).getService();
+        mService.addListeners(this);
+        fetchDataTrack(mService.getCurrentTrack());
+        handlerSyncTime();
     }
 
     private void initView(View rootView) {
@@ -94,10 +97,19 @@ public class PlayFragment extends Fragment
     }
 
     private void fetchDataTrack(Track track) {
-        mToolbar.setTitle(mTrack.getTitle());
-        mToolbar.setSubtitle(mTrack.getUser().getUsername());
+        mToolbar.setTitle(track.getTitle());
+        mToolbar.setSubtitle(track.getUser().getUsername());
+        mSeekBarProccess.setProgress(DEFAULT_PROGRESS);
         CommonUtils.loadImageFromUrl(mImageBackground, track.getArtworkUrl(), CommonUtils.T500);
         CommonUtils.loadImageFromUrl(mImageSong, track.getArtworkUrl(), CommonUtils.T300);
+        if (mService.getState() == State.PAUSE) {
+            // Start animation code late
+            // Changing button image to play Button
+            mImagePlay.setImageResource(R.drawable.ic_play_48dp);
+        } else {
+            // Pause animation code late
+            mImagePlay.setImageResource(R.drawable.ic_pause_48dp);
+        }
     }
 
     private void onListenerEvent() {
@@ -105,37 +117,83 @@ public class PlayFragment extends Fragment
         mSeekBarProccess.setOnSeekBarChangeListener(this);
     }
 
+    private void handlerSyncTime() {
+        mHandlerSyncTime = new Handler();
+        mHandlerSyncTime.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (mService.getState() == State.PLAY) {
+                    long totalTime = mService.getDuration();
+                    long currentTime = mService.getCurrentDuration();
+                    mSeekBarProccess.setProgress(CommonUtils.progressPercentage(currentTime, totalTime));
+                    mTextDuration.setText(CommonUtils.convertTimeInMilisToString(currentTime));
+                }
+                mHandlerSyncTime.postDelayed(this, TIME_DELAY);
+            }
+        }, TIME_DELAY);
+    }
+
+    @Override
+    public void setPresenter(PlayContract.Presenter presenter) {
+        mPresenter = checkNotNull(presenter);
+    }
+
+    @Override
+    public void showErrors(String message) {
+
+    }
+
     private void play() {
-        if (mPlayerManager.getState() == State.PLAY) {
-            mPlayerManager.pause();
-            //Changing button image to play Button
-            mImagePlay.setImageResource(R.drawable.ic_play_48dp);
-        } else {
-            //Resume song
-            mPlayerManager.start();
+        if (mService.getState() == State.PAUSE) {
+            mService.startTrack();
             mImagePlay.setImageResource(R.drawable.ic_pause_48dp);
+            // Animation code late
+        } else {
+            mService.pauseTrack();
+            mImagePlay.setImageResource(R.drawable.ic_play_48dp);
+            // Animation code late
         }
     }
 
     @Override
     public void onProgressChanged(CircularSeekBar circularSeekBar, float progress,
             boolean fromUser) {
-        // Code late
+        if (fromUser) {
+            mService.seek(CommonUtils.progressToTimer(progress, mService.getDuration()));
+            mTextDuration.setText(CommonUtils.convertTimeInMilisToString((long) progress));
+        }
     }
 
     @Override
     public void onStopTrackingTouch(CircularSeekBar seekBar) {
-        // Code late
+        mTextDuration.setText(CommonUtils.convertTimeInMilisToString((long) seekBar.getProgress()));
     }
 
     @Override
     public void onStartTrackingTouch(CircularSeekBar seekBar) {
-        // Code late
+        mTextDuration.setText(CommonUtils.convertTimeInMilisToString((long) seekBar.getProgress()));
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mPlayerManager.release();
+        mService.removeListener(this);
+    }
+
+    @Override
+    public void onState(int state) {
+        if (mService.getState() == State.PAUSE) {
+            // Start animation code late
+            // Changing button image to play Button
+            mImagePlay.setImageResource(R.drawable.ic_play_48dp);
+        } else {
+            // Pause animation code late
+            mImagePlay.setImageResource(R.drawable.ic_pause_48dp);
+        }
+    }
+
+    @Override
+    public void onTrackChanged(Track track) {
+        fetchDataTrack(track);
     }
 }

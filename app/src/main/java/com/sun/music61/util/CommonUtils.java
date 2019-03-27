@@ -111,4 +111,22 @@ public class CommonUtils {
                 TimeUnit.MILLISECONDS.toSeconds(duration) -
                         TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(duration)));
     }
+
+    public static int progressPercentage(long currentDuration, long totalDuration) {
+        Double percentage;
+        long currentSeconds  = (int) (currentDuration / Number.THOUSAND);
+        long totalSeconds = (int) (totalDuration / Number.THOUSAND);
+        //calculating percentage
+        percentage = (((double)currentSeconds) / totalSeconds) * Number.HUNDRED;
+        //return percentage
+        return percentage.intValue();
+    }
+
+    public static int progressToTimer(float progress, long totalDuration) {
+        int currentDuration;
+        totalDuration = totalDuration / Number.THOUSAND;
+        currentDuration = (int) (progress / Number.HUNDRED  * totalDuration);
+        //return current duration in milliseconds
+        return currentDuration * Number.THOUSAND;
+    }
 }
