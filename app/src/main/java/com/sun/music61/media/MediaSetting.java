@@ -2,7 +2,7 @@ package com.sun.music61.media;
 
 import android.media.MediaPlayer;
 
-public abstract class BaseMedia {
+public abstract class MediaSetting {
 
     protected MediaPlayer mMediaPlayer;
     @State
@@ -12,14 +12,14 @@ public abstract class BaseMedia {
     @Shuffle
     protected int mShuffle;
 
-    protected BaseMedia() {
+    protected MediaSetting() {
         mState = State.PAUSE;
         mMediaPlayer = new MediaPlayer();
     }
 
-    public abstract <T> void create(T obj);
+    public abstract void create();
     public abstract void start();
-    public abstract <T> void change(T obj);
+    public abstract <T> void change(T object);
     public abstract void pause();
     public abstract void previous();
     public abstract void next();

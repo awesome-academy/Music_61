@@ -9,13 +9,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class MediaPlayerManager extends BaseMedia {
+import static com.sun.music61.util.CommonUtils.Number;
+
+public class MediaPlayerManager extends MediaSetting {
+
+    private static MediaPlayerManager sInstance;
 
     private PlayTrackService mService;
     private Track mCurrentTrack;
     private List<Track> mTracks;
-
-    private static MediaPlayerManager sInstance;
 
     private MediaPlayerManager(PlayTrackService service) {
         super();
@@ -30,11 +32,10 @@ public class MediaPlayerManager extends BaseMedia {
     }
 
     @Override
-    public  <T> void create(T obj) {
-        Track track = (Track) obj;
+    public void create() {
         mMediaPlayer.reset();
         try {
-            mMediaPlayer.setDataSource(mService, Uri.parse(track.getStreamUrl() + CommonUtils.AUTHORIZED_SERVER));
+            mMediaPlayer.setDataSource(mService, Uri.parse(mCurrentTrack.getStreamUrl() + CommonUtils.AUTHORIZED_SERVER));
         } catch (IOException e) {
             // Do nothing
         }
@@ -51,9 +52,9 @@ public class MediaPlayerManager extends BaseMedia {
     }
 
     @Override
-    public <T> void change(T obj) {
-        mCurrentTrack = (Track) obj;
-        create(obj);
+    public <T> void change(T object) {
+        mCurrentTrack = (Track) object;
+        create();
     }
 
     @Override
@@ -69,11 +70,8 @@ public class MediaPlayerManager extends BaseMedia {
 
     @Override
     public void next() {
-        if (getShuffle() == Shuffle.OFF) {
-            change(getNextTrack());
-        } else {
-            change(getRandomTrack());
-        }
+        if (mShuffle == Shuffle.OFF) change(getNextTrack());
+        else change(getRandomTrack());
     }
 
     @Override
@@ -84,14 +82,14 @@ public class MediaPlayerManager extends BaseMedia {
 
     private Track getPreviousTrack() {
         int position = mTracks.indexOf(mCurrentTrack);
-        if (position == 0) return mTracks.get(mTracks.size() - 1);
-        return mTracks.get(position - 1);
+        if (position == Number.ZERO) return mTracks.get(mTracks.size() - Number.ONE); // Last track
+        return mTracks.get(position - Number.ONE);
     }
 
     private Track getNextTrack() {
         int position = mTracks.indexOf(mCurrentTrack);
-        if (position == mTracks.size() - 1) return mTracks.get(0);
-        return mTracks.get(position + 1);
+        if (position == mTracks.size() - Number.ONE) return mTracks.get(Number.ZERO); // First track
+        return mTracks.get(position + Number.ONE);
     }
 
     private Track getRandomTrack() {
@@ -131,6 +129,6 @@ public class MediaPlayerManager extends BaseMedia {
     }
 
     public boolean isLastTracks(Track currentTrack) {
-        return mTracks.indexOf(currentTrack) == mTracks.size() - 1;
+        return mTracks.indexOf(currentTrack) == mTracks.size() - Number.ONE;
     }
 }

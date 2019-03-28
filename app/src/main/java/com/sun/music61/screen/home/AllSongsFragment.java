@@ -21,7 +21,6 @@ import com.sun.music61.screen.home.adapter.TrackAdapter;
 import com.sun.music61.screen.play.PlayFragment;
 import com.sun.music61.screen.service.PlayTrackListener;
 import com.sun.music61.screen.service.PlayTrackService;
-import com.sun.music61.util.ActivityUtils;
 import com.sun.music61.util.CommonUtils;
 import com.sun.music61.util.RepositoryInstance;
 import com.sun.music61.util.helpers.ImageLoadingServiceHelpers;
@@ -173,12 +172,12 @@ public class AllSongsFragment extends Fragment implements AllSongsContract.View,
     }
 
     @Override
-    public void onState(int state) {
+    public void onStateChanged(int state) {
 
     }
 
     @Override
-    public void onSettingChange() {
+    public void onSettingChanged() {
 
     }
 

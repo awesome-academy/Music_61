@@ -97,12 +97,12 @@ TracksModalAdapter.TrackModalClickListener {
     }
 
     @Override
-    public void onState(int state) {
+    public void onStateChanged(int state) {
 
     }
 
     @Override
-    public void onSettingChange() {
+    public void onSettingChanged() {
 
     }
 
