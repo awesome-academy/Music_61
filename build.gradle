@@ -49,4 +49,5 @@ ext {
     diagonallayout = '1.0.9'
     coverflow = '1.0'
     circularseekbar = '1.1.4'
+    cyclemenu = '1.0.2'
 }
