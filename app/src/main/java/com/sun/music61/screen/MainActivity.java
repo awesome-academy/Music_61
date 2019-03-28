@@ -20,7 +20,7 @@ import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 import static com.sun.music61.util.CommonUtils.Font;
 
-public class MainActivity extends AppCompatActivity implements PlayTrackListener {
+public class MainActivity extends AppCompatActivity {
 
     private ServiceConnection mConnection;
     private PlayTrackService mService;
@@ -60,7 +60,6 @@ public class MainActivity extends AppCompatActivity implements PlayTrackListener
                 // Default Fragment
                 ActivityUtils.addFragmentToActivity(getSupportFragmentManager(), MainFragment.newInstance(),
                         R.id.contentMain);
-                addPlayTrackListener();
             }
 
             @Override
@@ -71,19 +70,10 @@ public class MainActivity extends AppCompatActivity implements PlayTrackListener
         bindService(PlayTrackService.getIntent(this), mConnection, BIND_AUTO_CREATE);
     }
 
-    private void addPlayTrackListener() {
-        mService.addListeners(this);
-    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
         removeService();
-        removeListener();
-    }
-
-    private void removeListener() {
-        mService.removeListener(this);
     }
 
     private void removeService() {
@@ -94,21 +84,6 @@ public class MainActivity extends AppCompatActivity implements PlayTrackListener
     public boolean onSupportNavigateUp() {
         replaceFragment(this, MainFragment.newInstance());
         return false;
-    }
-
-    @Override
-    public void onState(int state) {
-        // Code late
-    }
-
-    @Override
-    public void onSettingChange() {
-
-    }
-
-    @Override
-    public void onTrackChanged(Track track) {
-        // Code late
     }
 
     public PlayTrackService getService() {

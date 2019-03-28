@@ -86,11 +86,15 @@ public class MusicNotificationHelper extends NotificationHelper {
                 .setContentText(track.getUser().getUsername())
                 .setLargeIcon(BitmapFactory.decodeResource(mService.getResources(), R.mipmap.ic_launcher));
         loadImageSong(track);
+        handleStartAndStopForeground();
     }
 
     public void updateStateNotification() {
         createBuilder();
         updateTrack(mService.getCurrentTrack());
+    }
+
+    private void handleStartAndStopForeground() {
         if (mService.getState() == State.PLAY) {
             startForeground(mBuilder.build());
         } else {

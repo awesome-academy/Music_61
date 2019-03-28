@@ -114,7 +114,7 @@ public class PlayFragment extends Fragment implements
         mSeekBarProccess.setProgress(DEFAULT_PROGRESS);
         CommonUtils.loadImageFromUrl(mImageBackground, track.getArtworkUrl(), CommonUtils.T500);
         CommonUtils.loadImageFromUrl(mImageSong, track.getArtworkUrl(), CommonUtils.T300);
-        onSettingChange();
+        onSettingChanged();
     }
 
     private void onListenerEvent() {
@@ -250,7 +250,7 @@ public class PlayFragment extends Fragment implements
     }
 
     @Override
-    public void onState(int state) {
+    public void onStateChanged(int state) {
         if (mService.getState() == State.PAUSE) {
             mImagePlay.setImageResource(R.drawable.ic_play_48dp);
             mImageSong.clearAnimation();
@@ -261,7 +261,7 @@ public class PlayFragment extends Fragment implements
     }
 
     @Override
-    public void onSettingChange() {
+    public void onSettingChanged() {
         updateLoopIcon();
         updateShuffleIcon();
     }

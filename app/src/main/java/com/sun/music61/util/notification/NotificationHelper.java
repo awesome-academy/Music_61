@@ -30,6 +30,7 @@ public class NotificationHelper {
                         NotificationManager.IMPORTANCE_LOW);
                 mNotificationChannel.enableLights(false);
                 mNotificationChannel.enableVibration(false);
+                mNotificationChannel.setSound(null,null);
                 mNotificationManager.createNotificationChannel(mNotificationChannel);
             }
         }

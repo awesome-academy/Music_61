@@ -12,7 +12,6 @@ import com.sun.music61.media.MediaPlayerManager;
 import com.sun.music61.media.Shuffle;
 import com.sun.music61.media.State;
 import com.sun.music61.util.notification.MusicNotificationHelper;
-import com.sun.music61.media.State;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +21,12 @@ public class PlayTrackService extends Service implements
         MediaPlayer.OnErrorListener,
         MediaPlayer.OnCompletionListener,
         MediaPlayer.OnPreparedListener  {
+
+    interface Status {
+        int STATE_NOTIFICATION = 0;
+        int STATE_TRACK_NOTIFICATION = 1;
+        int SETTING = 2;
+    }
 
     private IBinder mBinder;
     private MediaPlayerManager mPlayerManager;
@@ -77,27 +82,39 @@ public class PlayTrackService extends Service implements
         else pauseTrack();
     }
 
+    private void update(int type) {
+        switch (type) {
+            case Status.STATE_TRACK_NOTIFICATION:
+                notifyTrackChange();
+            case Status.STATE_NOTIFICATION:
+                notifyStateChange();
+                notificationChange();
+                break;
+            case Status.SETTING:
+                notifySettingChange();
+                break;
+        }
+    }
+
     private void notifyStateChange() {
         for (PlayTrackListener listener : mListeners) {
-            listener.onState(getState());
+            listener.onStateChanged(getState());
         }
     }
 
     private void notifySettingChange() {
         for (PlayTrackListener listener : mListeners) {
-            listener.onSettingChange();
+            listener.onSettingChanged();
         }
     }
 
     private void notifyTrackChange() {
-        notifyStateChange();
         for (PlayTrackListener listener : mListeners) {
             listener.onTrackChanged(getCurrentTrack());
         }
     }
 
-    private void updateNotification() {
-        notifyStateChange();
+    private void notificationChange() {
         mNotificationHelper.updateStateNotification();
     }
 
@@ -134,33 +151,31 @@ public class PlayTrackService extends Service implements
 
     public void startTrack() {
         mPlayerManager.start();
-        updateNotification();
+        update(Status.STATE_NOTIFICATION);
     }
 
     public void changeTrack(Track track) {
         mPlayerManager.change(track);
-        notifyTrackChange();
+        update(Status.STATE_TRACK_NOTIFICATION);
     }
 
     public void pauseTrack() {
         mPlayerManager.pause();
-        updateNotification();
-    }
+        update(Status.STATE_NOTIFICATION);    }
 
     public void previousTrack() {
         mPlayerManager.previous();
-        updateNotification();
-        notifyTrackChange();
+        update(Status.STATE_TRACK_NOTIFICATION);
     }
 
     public void nextTrack() {
         mPlayerManager.next();
-        updateNotification();
-        notifyTrackChange();
+        update(Status.STATE_TRACK_NOTIFICATION);
     }
 
     public void stopTrack() {
         mPlayerManager.stop();
+        update(Status.STATE_NOTIFICATION);
     }
 
     public void seek(int milliseconds) {
@@ -175,6 +190,7 @@ public class PlayTrackService extends Service implements
         return mPlayerManager.getCurrentDuration();
     }
 
+    @State
     public int getState() {
         return mPlayerManager.getState();
     }
@@ -185,12 +201,12 @@ public class PlayTrackService extends Service implements
 
     public void shuffleTracks() {
         mPlayerManager.shuffleTracks();
-        notifySettingChange();
+        update(Status.SETTING);
     }
 
     public void unShuffleTracks() {
         mPlayerManager.unShuffleTracks();
-        notifySettingChange();
+        update(Status.SETTING);
     }
 
     @Shuffle
@@ -200,7 +216,7 @@ public class PlayTrackService extends Service implements
 
     public void loopTracks(@Loop int loop) {
         mPlayerManager.setLoop(loop);
-        notifySettingChange();
+        update(Status.SETTING);
     }
 
     @Loop
