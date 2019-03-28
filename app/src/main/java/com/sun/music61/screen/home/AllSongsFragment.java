@@ -178,6 +178,11 @@ public class AllSongsFragment extends Fragment implements AllSongsContract.View,
     }
 
     @Override
+    public void onSettingChange() {
+
+    }
+
+    @Override
     public void onTrackChanged(Track track) {
 
     }

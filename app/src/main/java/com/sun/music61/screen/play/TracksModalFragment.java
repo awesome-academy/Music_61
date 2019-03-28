@@ -102,6 +102,11 @@ TracksModalAdapter.TrackModalClickListener {
     }
 
     @Override
+    public void onSettingChange() {
+
+    }
+
+    @Override
     public void onTrackChanged(Track track) {
         mLayoutManager.scrollToPositionWithOffset(mService.getTracks()
                 .indexOf(mService.getCurrentTrack()), OFFSET);

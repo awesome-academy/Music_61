@@ -158,6 +158,11 @@ public class GenresFragment extends Fragment implements GenresContract.View,
     }
 
     @Override
+    public void onSettingChange() {
+
+    }
+
+    @Override
     public void onTrackChanged(Track track) {
 
     }
