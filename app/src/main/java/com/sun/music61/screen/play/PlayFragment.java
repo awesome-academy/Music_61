@@ -1,9 +1,12 @@
 package com.sun.music61.screen.play;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -17,6 +20,8 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
+import com.cleveroad.sy.cyclemenuwidget.CycleMenuWidget;
+import com.cleveroad.sy.cyclemenuwidget.OnMenuItemClickListener;
 import com.flaviofaria.kenburnsview.KenBurnsView;
 import com.sun.music61.R;
 import com.sun.music61.data.model.Track;
@@ -41,6 +46,7 @@ public class PlayFragment extends Fragment implements
     private static final String ARGUMENT_TRACK = "ARGUMENT_TRACK";
     private static final int DEFAULT_PROGRESS = 0;
     private static final long TIME_DELAY = 1000;
+    private static final String SHARE_TYPE = "text/plain";
 
     private Toolbar mToolbar;
     private KenBurnsView mImageBackground;
@@ -53,6 +59,8 @@ public class PlayFragment extends Fragment implements
     private ImageView mButtonPlay;
     private ImageView mButtonRepeat;
     private ImageView mImagePlay;
+    private ConstraintLayout mChildLayout;
+    private CycleMenuWidget mCycleMenu;
     private Animation mAnimation;
     private PlayContract.Presenter mPresenter;
     private PlayTrackService mService;
@@ -105,6 +113,9 @@ public class PlayFragment extends Fragment implements
         mButtonPlay = rootView.findViewById(R.id.buttonPlay);
         mButtonRepeat = rootView.findViewById(R.id.buttonRepeat);
         mImagePlay = rootView.findViewById(R.id.imagePlay);
+        mCycleMenu = rootView.findViewById(R.id.cycleMenu);
+        mChildLayout = rootView.findViewById(R.id.childLayout);
+        mCycleMenu.setMenuRes(R.menu.cycle_menu_play);
         mAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.rotate_image_song);
     }
 
@@ -124,6 +135,45 @@ public class PlayFragment extends Fragment implements
         mButtonShuffle.setOnClickListener(view -> shuffle());
         mButtonRepeat.setOnClickListener(view -> loop());
         mSeekBarProccess.setOnSeekBarChangeListener(this);
+        mCycleMenu.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+            @Override
+            public void onMenuItemClick(View view, int itemPosition) {
+                switch (view.getId()) {
+                    case R.id.actionFavorite:
+                        break;
+                    case R.id.actionCamera:
+                        break;
+                    case R.id.actionDownload:
+                        PermissionUtils.checkWriteExternalPermission(getActivity(), success -> {
+                            if (success) download();
+                            else Snackbar.make(mChildLayout, R.string.text_rejected_msg, Snackbar.LENGTH_SHORT).show();
+                        });
+                        break;
+                    case R.id.actionShare:
+                        share();
+                        break;
+                }
+            }
+
+            @Override
+            public void onMenuItemLongClick(View view, int itemPosition) {
+                // Do nothing
+            }
+        });
+    }
+
+    private void share() {
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_SEND);
+        intent.setType(SHARE_TYPE);
+        intent.putExtra(Intent.EXTRA_TEXT, mService.getCurrentTrack().getStreamUrl() + CommonUtils.AUTHORIZED_SERVER);
+        startActivity(Intent.createChooser(intent, mService.getCurrentTrack().getTitle()));
+    }
+
+    private void download() {
+        Objects.requireNonNull(getActivity())
+                .startService(DownloadTrackService
+                        .getIntent(getContext(), mService.getCurrentTrack()));
     }
 
     private void handlerSyncTime() {
@@ -176,7 +226,7 @@ public class PlayFragment extends Fragment implements
     private void updateShuffleIcon() {
         switch (mService.getShuffle()) {
             case Shuffle.OFF:
-                mButtonShuffle.setColorFilter(R.color.buttonColorGrey);
+                mButtonShuffle.setColorFilter(R.color.colorProgress);
                 break;
             case Shuffle.ON:
                 mButtonShuffle.setColorFilter(android.R.color.white);
@@ -198,7 +248,7 @@ public class PlayFragment extends Fragment implements
                 mButtonRepeat.setColorFilter(android.R.color.white);
                 break;
             case Loop.NONE:
-                mButtonRepeat.setColorFilter(R.color.buttonColorGrey);
+                mButtonRepeat.setColorFilter(R.color.colorProgress);
                 break;
             case Loop.ONE:
                 mButtonRepeat.setImageDrawable(getResources().getDrawable(R.drawable.ic_repeat_one_48dp_scaled));
