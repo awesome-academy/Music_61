@@ -30,10 +30,12 @@ public class MusicNotificationHelper extends NotificationHelper {
     private static final int ACTION_NEXT = 2;
     private static final int ACTION_FAVORITE = 3;
 
+    protected PlayTrackService mService;
     private NotificationCompat.Builder mBuilder;
 
     public MusicNotificationHelper(PlayTrackService service) {
         super(service);
+        mService = service;
     }
 
     public void createBuilder() {
